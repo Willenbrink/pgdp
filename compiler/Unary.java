@@ -25,5 +25,11 @@ public class Unary extends Expression
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    return 1;
+  }
 }
 //UTF-8 Encoded ä

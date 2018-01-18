@@ -25,5 +25,14 @@ public class Call extends Expression
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    //TODO
+    return -1;
+  }
+
+
 }
 //UTF-8 Encoded ä

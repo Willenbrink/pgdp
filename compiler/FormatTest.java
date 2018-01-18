@@ -2,15 +2,16 @@ package compiler;
 
 import static org.junit.Assert.*;
 
-import java.lang.Number;
 import org.junit.Test;
 
 public class FormatTest {
 
   @Test
   public void testExpression1() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.Plus, new java.lang.Number(11)), Binop.Minus,
-        new Binary(new Variable("a"), Binop.Plus, new java.lang.Number(1)));
+    Expression exp = new Binary(
+        new Binary(new Number(99), Binop.Plus, new Number(11)),
+        Binop.Minus,
+        new Binary(new Variable("a"), Binop.Plus, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 + 11 - (a + 1)", visitor.getResult());
@@ -18,8 +19,8 @@ public class FormatTest {
 
   @Test
   public void testExpression2() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.Plus, new java.lang.Number(11)), Binop.Plus,
-        new Binary(new Variable("a"), Binop.Plus, new java.lang.Number(1)));
+    Expression exp = new Binary(new Binary(new Number(99), Binop.Plus, new Number(11)), Binop.Plus,
+        new Binary(new Variable("a"), Binop.Plus, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 + 11 + a + 1", visitor.getResult());
@@ -27,8 +28,8 @@ public class FormatTest {
 
   @Test
   public void testExpression3() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.Plus, new java.lang.Number(11)), Binop.Plus,
-        new Binary(new Variable("a"), Binop.MultiplicationOperator, new java.lang.Number(1)));
+    Expression exp = new Binary(new Binary(new Number(99), Binop.Plus, new Number(11)), Binop.Plus,
+        new Binary(new Variable("a"), Binop.MultiplicationOperator, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 + 11 + a * 1", visitor.getResult());
@@ -36,7 +37,8 @@ public class FormatTest {
 
   @Test
   public void testExpression4() {
-    Expression exp = new Unary(Unop.Minus, new Binary(new java.lang.Number(99), Binop.Plus, new java.lang.Number(11)));
+    Expression exp = new Unary(Unop.Minus,
+        new Binary(new Number(99), Binop.Plus, new Number(11)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("-(99 + 11)", visitor.getResult());
@@ -45,25 +47,31 @@ public class FormatTest {
   @Test
   public void testExpression5() {
     Expression exp = new Unary(Unop.Minus,
-        new Binary(new java.lang.Number(99), Binop.MultiplicationOperator, new java.lang.Number(11)));
+        new Binary(new Number(99), Binop.MultiplicationOperator, new Number(11)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("-99 * 11", visitor.getResult());
   }
 
+  //TODO
+  /*
   @Test
   public void testExpression6() {
-    Expression exp = new ArrayAccess(new ArrayInitializer(new java.lang.Number(99)), new java.lang.Number(3));
+    Expression exp = new ArrayAccess(new ArrayInitializer(new Number(99)), new Number(3));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("(new int[99])[3]", visitor.getResult());
   }
+  */
 
   @Test
   public void testExpression7() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.DivisionOperator, new java.lang.Number(11)),
+    Expression exp = new Binary(
+        new Binary(
+            new Number(99), Binop.DivisionOperator, new Number(11)),
         Binop.DivisionOperator,
-        new Binary(new Variable("a"), Binop.DivisionOperator, new java.lang.Number(1)));
+        new Binary(
+            new Variable("a"), Binop.DivisionOperator, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 / 11 / (a / 1)", visitor.getResult());
@@ -72,10 +80,10 @@ public class FormatTest {
   @Test
   public void testExpression8() {
     Expression exp = new Binary(
-        new Binary(new java.lang.Number(99), Binop.DivisionOperator,
-            new Call("hugo", new Expression[] {new java.lang.Number(1), new Variable("b")})),
+        new Binary(new Number(99), Binop.DivisionOperator,
+            new Call("hugo", new Expression[] {new Number(1), new Variable("b")})),
         Binop.DivisionOperator,
-        new Binary(new Variable("a"), Binop.DivisionOperator, new java.lang.Number(1)));
+        new Binary(new Variable("a"), Binop.DivisionOperator, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 / hugo(1, b) / (a / 1)", visitor.getResult());
@@ -83,8 +91,8 @@ public class FormatTest {
 
   @Test
   public void testExpression9() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.Plus, new java.lang.Number(11)),
-        Binop.MultiplicationOperator, new Binary(new Variable("a"), Binop.Plus, new java.lang.Number(1)));
+    Expression exp = new Binary(new Binary(new Number(99), Binop.Plus, new Number(11)),
+        Binop.MultiplicationOperator, new Binary(new Variable("a"), Binop.Plus, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("(99 + 11) * (a + 1)", visitor.getResult());
@@ -93,8 +101,8 @@ public class FormatTest {
   @Test
   public void testExpression10() {
     Expression exp =
-        new Binary(new Binary(new java.lang.Number(99), Binop.MultiplicationOperator, new java.lang.Number(11)),
-            Binop.MultiplicationOperator, new Binary(new Variable("a"), Binop.Plus, new java.lang.Number(1)));
+        new Binary(new Binary(new Number(99), Binop.MultiplicationOperator, new Number(11)),
+            Binop.MultiplicationOperator, new Binary(new Variable("a"), Binop.Plus, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("99 * 11 * (a + 1)", visitor.getResult());
@@ -102,9 +110,9 @@ public class FormatTest {
 
   @Test
   public void testExpression11() {
-    Expression exp = new Binary(new Binary(new java.lang.Number(99), Binop.Minus, new java.lang.Number(11)),
+    Expression exp = new Binary(new Binary(new Number(99), Binop.Minus, new Number(11)),
         Binop.MultiplicationOperator,
-        new Binary(new Variable("a"), Binop.MultiplicationOperator, new java.lang.Number(1)));
+        new Binary(new Variable("a"), Binop.MultiplicationOperator, new Number(1)));
     FormatVisitor visitor = new FormatVisitor();
     exp.accept(visitor);
     assertEquals("(99 - 11) * a * 1", visitor.getResult());
@@ -131,7 +139,7 @@ public class FormatTest {
   @Test
   public void testCondition3() {
     Condition cond =
-        new BinaryCondition(new Comparison(new java.lang.Number(2), Comp.Greater, new Variable("a")),
+        new BinaryCondition(new Comparison(new Number(2), Comp.Greater, new Variable("a")),
             Bbinop.Or, new BinaryCondition(new False(), Bbinop.And, new True()));
     FormatVisitor visitor = new FormatVisitor();
     cond.accept(visitor);
@@ -141,7 +149,7 @@ public class FormatTest {
   @Test
   public void testCondition4() {
     Condition cond =
-        new UnaryCondition(Bunop.Not, new Comparison(new java.lang.Number(1), Comp.Equals, new java.lang.Number(2)));
+        new UnaryCondition(Bunop.Not, new Comparison(new Number(1), Comp.Equals, new Number(2)));
     FormatVisitor visitor = new FormatVisitor();
     cond.accept(visitor);
     assertEquals("!(1 == 2)", visitor.getResult());

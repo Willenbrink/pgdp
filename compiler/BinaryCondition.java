@@ -31,5 +31,16 @@ public class BinaryCondition extends Condition
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    switch (operator)
+    {
+      case And: return 2;
+      case Or: return 3;
+      default: throw new RuntimeException("Invalid Bbinop");
+    }
+  }
 }
 //UTF-8 Encoded ä

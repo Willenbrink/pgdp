@@ -31,5 +31,19 @@ public class Binary extends Expression
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    switch (operator)
+    {
+      case MultiplicationOperator: return 3;
+      case DivisionOperator: return 3;
+      case Modulo: return 2;
+      case Plus: return 5;
+      case Minus: return 4;
+      default: throw new RuntimeException("Invalid Binop");
+    }
+  }
 }
 //UTF-8 Encoded ä

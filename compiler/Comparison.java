@@ -31,5 +31,12 @@ public class Comparison extends Condition
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    //TODO
+    return 2;
+  }
 }
 //UTF-8 Encoded ä

@@ -18,5 +18,11 @@ public class Variable extends Expression
   {
     visitor.visit(this);
   }
+
+  @Override
+  public int firstLevelPriority()
+  {
+    return 0;
+  }
 }
 //UTF-8 Encoded ä

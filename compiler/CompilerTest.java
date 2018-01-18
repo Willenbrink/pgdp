@@ -2,9 +2,7 @@ package compiler;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.Compiler;
 import org.junit.Test;
-import interpreter.Interpreter;
 
 public class CompilerTest {
 
@@ -29,7 +27,7 @@ public class CompilerTest {
         "  }\n" + 
         "  return sum;\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(20, retVal);
   }
@@ -60,7 +58,7 @@ public class CompilerTest {
         "  }\n" + 
         "  return sum(arr, n);\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(20, retVal);
   }
@@ -98,7 +96,7 @@ public class CompilerTest {
         "  arr = generateArray(n);\n" + 
         "  return sum(arr, n);\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(20, retVal);
   }
@@ -134,7 +132,7 @@ public class CompilerTest {
         "  arr = generateArray();\n" + 
         "  return sum(arr);\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(30, retVal);
   }
@@ -190,7 +188,7 @@ public class CompilerTest {
         "  n = n + isPalindrome(1112111);\n" + 
         "  return n;" +
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(5, retVal);
   }
@@ -219,7 +217,7 @@ public class CompilerTest {
         "  r = ggt(a, b);\n" + 
         "  return r;\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(ggtCode);
+    int[] assembly = Compiler.compile(ggtCode);
     int retVal = Interpreter.execute(assembly);
     assertEquals(252, retVal);
   }
@@ -235,7 +233,7 @@ public class CompilerTest {
         "int main() {\n" + 
         "  return fak(6);\n" + 
         "}\n";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(720, retVal);
   }
@@ -274,7 +272,7 @@ public class CompilerTest {
         "  prims = prims + prim(5251);\n" + 
         "  return prims;\n" + 
         "}";
-    int[] assembly = java.lang.Compiler.compile(code);
+    int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);
     assertEquals(5, retVal);
   }
@@ -292,7 +290,7 @@ public class CompilerTest {
         "  r = ggt(a, b, a);\n" + 
         "  return r;\n" + 
         "}";
-    java.lang.Compiler.compile(invalidCode);
+    Compiler.compile(invalidCode);
   }
   
   @Test(expected = RuntimeException.class)
@@ -308,7 +306,7 @@ public class CompilerTest {
         "  r = ggt(a, b);\n" + 
         "  return r;\n" + 
         "}";
-    java.lang.Compiler.compile(invalidCode);
+    Compiler.compile(invalidCode);
   }
   
   @Test(expected = RuntimeException.class)

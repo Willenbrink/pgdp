@@ -2,7 +2,19 @@ package compiler;
 
 public class FormatVisitor implements Visitor
 {
+  /*
+  0: Number, True/False
+1: Negation
+2: Modulo &&
+3: Multiplikation, Division ||
+5: Plus
+4. Minus
+…
+2. Comparison turns to boolean and does not have any priority
+   */
+
   String result;
+  int depth; //TODO indentation
 
   public FormatVisitor()
   {
@@ -11,14 +23,17 @@ public class FormatVisitor implements Visitor
 
   public String getResult()
   {
+    //TODO
+    System.out.println(result);
     return result;
+    //return result.substring(0, result.length()-1);
   }
 
   @Override
   public void visit(Program item)
   {
     for(Function func : item.getFunctions())
-      func.accept(this);
+      check(func);
   }
 
   @Override
@@ -28,11 +43,11 @@ public class FormatVisitor implements Visitor
     item.getParameters().accept(this);
     for (int i = 0; i < item.getDeclarations().length; i++)
     {
-      item.getDeclarations()[i].accept(this);
+      check(item.getDeclarations()[i]);
     }
     for (int i = 0; i < item.getStatements().length; i++)
     {
-      item.getStatements()[i].accept(this);
+      check(item.getStatements()[i]);
     }
   }
 
@@ -65,25 +80,44 @@ public class FormatVisitor implements Visitor
   public void visit(Composite item)
   {
     for(Statement stmt : item.getStatements())
-      stmt.accept(this);
+      check(stmt);
+    /* Results in incorrect indentation
+    if()
+      {
+        bla();
+      }
+    else
+     */
   }
 
   @Override
   public void visit(IfThen item)
   {
-    //TODO
+    add("if(");
+    item.getCond().accept(this);
+    add(")\n");
+    item.getThenBranch().accept(this);
   }
 
   @Override
   public void visit(IfThenElse item)
   {
-    //TODO
+    //TODO newlines missing at most places
+    add("if(");
+    item.getCond().accept(this);
+    add(")\n");
+    item.getThenBranch().accept(this);
+    add("else");
+    item.getElseBranch().accept(this);
   }
 
   @Override
   public void visit(While item)
   {
-    //TODO
+    add("while(");
+    item.getCond().accept(this);
+    add(")\n");
+    item.getBody().accept(this);
   }
 
   @Override
@@ -103,7 +137,8 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Return item)
   {
-    //TODO
+    add("return ");
+    item.getExpression().accept(this);
   }
 
   @Override
@@ -122,22 +157,30 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Binary item)
   {
-    item.getLhs().accept(this);
-    add(item.getOperator());
-    item.getRhs().accept(this);
+    check(item.getLhs(), item.firstLevelPriority());
+    addS(item.getOperator());
+    check(item.getRhs(), item.firstLevelPriority());
   }
 
   @Override
   public void visit(Unary item)
   {
     add(item.getOperator());
-    item.getOperand().accept(this);
+    check(item.getOperand(), item.firstLevelPriority());
   }
 
   @Override
   public void visit(Call item)
   {
-    //TODO
+    add(item.getFunctionName());
+    add("(");
+    for (int i = 0; i < item.getArguments().length; i++)
+    {
+      item.getArguments()[i].accept(this);
+      if(i != item.getArguments().length-1)
+        add(", ");
+    }
+    add(")");
   }
 
   @Override
@@ -155,24 +198,24 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(BinaryCondition item)
   {
-    item.getLhs().accept(this);
-    add(item.getOperator());
-    item.getRhs().accept(this);
+    check(item.getLhs(), item.firstLevelPriority());
+    addS(item.getOperator());
+    check(item.getRhs(), item.firstLevelPriority());
   }
 
   @Override
   public void visit(Comparison item)
   {
-    item.getLhs().accept(this);
-    add(item.getOperator());
-    item.getRhs().accept(this);
+    check(item.getLhs(), item.firstLevelPriority());
+    addS(item.getOperator());
+    check(item.getRhs(), item.firstLevelPriority());
   }
 
   @Override
   public void visit(UnaryCondition item)
   {
     add(item.getOperator());
-    item.getOperand().accept(this);
+    check(item.getOperand(), item.firstLevelPriority());
   }
 
   @Override
@@ -181,12 +224,65 @@ public class FormatVisitor implements Visitor
 
   }
 
+  private void check(Expression side, int priority)
+  {
+    boolean isBraced = side.firstLevelPriority() > priority;
+    if(isBraced)
+    {
+      //Winter is coming
+      add("(");
+      side.accept(this);
+      add(")");
+      return;
+    }
+    side.accept(this);
+  }
+
+  private void check(Condition side, int priority)
+  {
+    boolean isBraced = side.firstLevelPriority() > priority;
+    if(isBraced)
+    {
+      //Winter is coming
+      add("(");
+      side.accept(this);
+      add(")");
+      return;
+    }
+    side.accept(this);
+  }
+
+  private void check(Statement side)
+  {
+    depth++;
+    side.accept(this);
+    depth--;
+  }
+
+  private void check(Declaration side)
+  {
+    depth++;
+    side.accept(this);
+    depth--;
+  }
+
+  private void check(Function side)
+  {
+    depth++;
+    side.accept(this);
+    depth--;
+  }
+
   private void add(Object... appendage)
   {
-    //TODO .toString() unnecessary?
     for (Object obj : appendage)
     {
-      result += obj + " ";
+      result += obj.toString() + "";
     }
+  }
+
+  private void addS(Object appendage)
+  {
+    result += " " + appendage.toString() + " ";
   }
 }

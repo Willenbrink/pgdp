@@ -20,6 +20,17 @@ public class GPXWriter {
   }
 
   public void writeGPX(RoutingResult rr) {
-    // Todo
+    writeLine("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
+    writeLine("<gpx version=\"1.1\" creator=\"Nogivan\">");
+    OSMNode[] path = rr.getPath();
+    for (int i = 0; i < path.length; i++)
+    {
+      OSMNode node = path[i];
+      double lat = node.getLocation().getLat();
+      double lon = node.getLocation().getLon();
+      writeLine("  <wpt lat=\"" + lat + "\" lon=\"" + lon + "\"></wpt>");
+    }
+    writeLine("</gpx>");
+    close();
   }
 }

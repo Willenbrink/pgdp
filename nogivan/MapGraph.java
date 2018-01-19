@@ -1,5 +1,6 @@
 package nogivan;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -14,11 +15,13 @@ import java.util.Set;
 public class MapGraph
 {
   private Map<Long, OSMNode> nodes;
+  private Map<Long, Node> improvedNodes;
   private Map<Long, Set<MapEdge>> edges;
 
   public MapGraph()
   {
     nodes = new HashMap<>();
+    improvedNodes = new HashMap<>();
     edges = new HashMap<>();
   }
 
@@ -32,7 +35,7 @@ public class MapGraph
   boolean hasEdge(OSMNode from, OSMNode to)
   {
     //TODO verify
-    for (MapEdge edge : edges.get(from))
+    for (MapEdge edge : edges.get(from.getId()))
     {
       if (edge.getTo() == to.getId())
         return true;
@@ -79,48 +82,95 @@ public class MapGraph
    * von 'from' zum Startknoten bzw. 'to' zum Endknoten wird
    * vernachlässigt.
    */
+
+  //TODO move
+  private BinomialHeap<Node> vermutet = new BinomialHeap<>();
+  private Map<Long, BinomialHeapHandle> handles = new HashMap<>();
+
   public RoutingResult route(MapPoint from, MapPoint to)
   {
-    /*
-    BinomialHeap vermutet = new BinomialHeap();
-    vermutet.add(closest(from));
-    List<Eisscholle> tour = new ArrayList<>();
+    //Initialisation
+    List<Node> bekannt = new ArrayList<>();
+
+    for(Entry<Long, OSMNode> node : nodes.entrySet())
+    {
+      improvedNodes.put(node.getKey(), new Node(node.getValue()));
+    }
+
+    Node start = improvedNodes.get(closest(from).getId());
+    Node target = improvedNodes.get(closest(to).getId());
+
+    start.setDistance(0);
+    vermute(start);
 
     //2
-    while (vermutet.size() > 0)
+    do
     {
       //2a
-      Eisscholle closest = vermutet.poll();
-      addBekannt(closest);
+      Node next = vermutet.poll();
+      bekannt.add(next);
 
       //2b
-      setNachbar(closest, seewege);
-      calculateDistance(closest, seewege);
+      long id = next.getId();
+      edges.computeIfAbsent(id, d -> new HashSet<>());
+      for (MapEdge edge : edges.get(id))
+      {
+        Node neighbor = improvedNodes.get(edge.getTo());
+        if (bekannt.contains(next.getId()))
+          continue;
+
+        int newDistance = next.getLocation().distance(neighbor.getLocation())+next.getDistance();
+        int oldDistance = neighbor.getDistance();
+        if(oldDistance > newDistance)
+        {
+          neighbor.setDistance(newDistance);
+          neighbor.setVorgänger(next);
+          if(neighbor.vermutet)
+            vermutet.replaceWithSmallerElement(handles.get(neighbor.getId()), neighbor);
+          else
+          {
+            neighbor.vermutet = true;
+            vermute(neighbor);
+          }
+        }
+      }
 
       //2c
-      while (nachbarschollen.size() > 0)
+      for(MapEdge edge : edges.get(next.getId()))
       {
-        Eisscholle eisscholle = nachbarschollen.poll();
-        if(eisscholle.getState() != Eisscholle.BEKANNT)
-          vermutet.add(eisscholle);
+        if(bekannt.contains(edge.getTo()))
+          continue;
+        Node node = improvedNodes.get(edge.getTo());
+        if(!node.vermutet)
+          vermute(node);
       }
-    }
+    }while (vermutet.getSize() > 0);
 
-    Eisscholle walk = eisschollen[endIndex];
-    while (walk != eisschollen[startIndex])
+    List<Node> result = new ArrayList<>();
+
+    Node walk = target;
+    Node prev = walk;
+    while(walk.compareTo(start) != 0)
     {
-      tour.add(walk);
-      walk = walk.getVorgaenger();
+      result.add(walk);
+      prev = walk;
+      walk = walk.getVorgänger();
+      prev = prev;
     }
-    tour.add(walk);
-    List<Eisscholle> finalTour = new ArrayList<>();
-    for (int i = tour.size() - 1; i >= 0; i--)
+    result.add(walk);
+
+    OSMNode[] tour = new OSMNode[result.size()];
+
+    for (int i = tour.length - 1; i >= 0; i--)
     {
-      finalTour.add(tour.get(i));
+      tour[tour.length-i-1] = result.get(i).getPart();
     }
-    return finalTour;
-    */
-    return null;
+    return new RoutingResult(tour, target.getDistance());
+  }
+
+  private void vermute(Node node)
+  {
+    handles.put(node.getId(), (BinomialHeapHandle) vermutet.insert(node));
   }
 
   public Map<Long, OSMNode> getNodes()

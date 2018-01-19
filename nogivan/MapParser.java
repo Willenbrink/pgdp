@@ -10,11 +10,6 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class MapParser {
 
-  public static void main(String[] args)
-  {
-    parseFile("campus_garching.osm");
-  }
-
   public static MapGraph parseFile(String fileName) {
     File inputFile = new File(fileName);
     try {
@@ -26,8 +21,9 @@ public class MapParser {
       MapGraph map = userhandler.map;
 
       System.out.println();
-      System.out.println(map.getNodes().size());
-      System.out.println(map.getEdges().size());
+      System.out.println("Nodes: " + map.getNodes().size());
+      System.out.println("Edges: " + map.getEdges().size());
+      System.out.println("Ways: " + userhandler.amountWays);
       return map;
     } catch (Exception e) {
       e.printStackTrace();

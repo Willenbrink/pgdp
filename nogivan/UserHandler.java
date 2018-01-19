@@ -14,6 +14,7 @@ import org.xml.sax.helpers.DefaultHandler;
 class UserHandler extends DefaultHandler
 {
   MapGraph map;
+  int amountWays = 0;
 
   private OSMWay way;
   private long id;
@@ -31,45 +32,39 @@ class UserHandler extends DefaultHandler
       String uri, String localName, String qName, Attributes attributes)
       throws SAXException
   {
+    //Node-Logic
     if(qName.equalsIgnoreCase("node"))
     {
-      //TODO nodelogic
-      //Validating the fields
-      if(attributes.getLocalName(0).equalsIgnoreCase("id")
-          && attributes.getLocalName(1).equalsIgnoreCase("lat")
-          && attributes.getLocalName(2).equalsIgnoreCase("lon"))
-      {
-        OSMNode node = new OSMNode(
-            Long.parseLong(attributes.getValue(0)),
-            Double.parseDouble(attributes.getValue(1)),
-            Double.parseDouble(attributes.getValue(2)));
-        map.addNode(node);
-        return;
-      }
-
-      throw new RuntimeException("Invalid fields");
+      long id = Long.parseLong(attributes.getValue("id"));
+      double lat = Double.parseDouble(attributes.getValue("lat"));
+      double lon = Double.parseDouble(attributes.getValue("lon"));
+      OSMNode node = new OSMNode(id, lat, lon);
+      map.addNode(node);
     }
+
+    //Start of way
     if(qName.equalsIgnoreCase("way"))
     {
-      //TODO way logic
-      id = Long.parseLong(attributes.getValue(0));
+      id = Long.parseLong(attributes.getValue("id"));
       nodes = new ArrayList<>();
       oneWay = false;
       isValid = false;
     }
+
+    //Nodes in way
     if(qName.equalsIgnoreCase("nd"))
     {
-      //TODO verify
-
-      nodes.add(Long.parseLong(attributes.getValue(0)));
+      nodes.add(Long.parseLong(attributes.getValue("ref")));
     }
+
+    //Tags of way
     if(qName.equalsIgnoreCase("tag"))
     {
-      //TODO way logic
       if(attributes.getValue(0).equalsIgnoreCase("oneway"))
       {
         oneWay = attributes.getValue(1).equalsIgnoreCase("yes");
       }
+      //TODO select
       if(attributes.getValue(0).equalsIgnoreCase("highway"))
       {
         isValid = true;
@@ -86,22 +81,26 @@ class UserHandler extends DefaultHandler
     {
       if(!isValid)
         return;
-      if(nodes.size() == 0)
-        return;
-      //TODO verify ways
+      amountWays++;
+
+      int amountEdges = 0;
       way = new OSMWay(id, nodes.toArray(new Long[0]), oneWay, "name");
       for (int i = 0; i < way.getNodes().length-1; i++)
       {
         MapEdge edge = new MapEdge(way.getNodes()[i+1], way);
         map.addEdge(way.getNodes()[i], edge);
+        amountEdges++;
       }
+      if(amountEdges != way.getNodes().length-1)
+        System.err.println("Invalid amount of edges");
 
       if(!oneWay)
       {
         for (int i = 1; i < way.getNodes().length; i++)
         {
-          MapEdge edge = new MapEdge(way.getNodes()[i], way);
+          MapEdge edge = new MapEdge(way.getNodes()[i-1], way);
           map.addEdge(way.getNodes()[i], edge);
+          amountEdges++;
         }
       }
     }

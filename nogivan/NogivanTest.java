@@ -36,8 +36,9 @@ public class NogivanTest {
     assertTrue(pathLength == rr.getDistance());
     
     assertTrue(rr.getDistance() == 254);
-    
-//    GPXWriter.write("/home/jucs/Desktop/testabcd1.gpx", rr);
+
+    GPXWriter writer = new GPXWriter("testabcd1.gpx");
+    writer.writeGPX(rr);
   }
   
   @Test
@@ -58,5 +59,8 @@ public class NogivanTest {
     assertTrue(pathLength == rr.getDistance());
     
     assertTrue(rr.getDistance() == 804);
+
+    GPXWriter writer = new GPXWriter("testabcd2.gpx");
+    writer.writeGPX(rr);
   }
 }

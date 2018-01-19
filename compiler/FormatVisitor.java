@@ -2,42 +2,27 @@ package compiler;
 
 public class FormatVisitor implements Visitor
 {
-  /*
-  0. Number
-  1. True/False (bool)
-  2. Negation, Multiplikation, Division
-  3. And
-  4. Modulo
-  5. Or
-  6. Minus
-
-  8. Plus
-
-
-  0: Number, True/False
-1: Negation
-2:  &&
-3:||
-2. Comparison turns to boolean and does not have any priority
-   */
-
   //Priorities
-  public static int number = 0;
-  public static int negation = 2;
-  public static int multiplication = 2;
-  public static int modulo = 4;
-  public static int division = 2;
-  public static int subtraction = 6; //TODO substraction subtraction
-  public static int addition = 6;
-  public static int bool = 1;
-  public static int and = 3;
-  public static int or = 5;
-  public static int comparison = 3;
-  public static int call = -1;
+  public static int call = 0;
 
-  String result;
-  int depth; //TODO indentation
-  //TODO priority in stmt not allowed
+  //Binary
+  public static int bool = 0;
+  public static int negation = 2;
+  public static int comparison = 3;
+  public static int and = 4;
+  public static int or = 5;
+
+  //Arithmetic
+  public static int number = 0;
+  public static int modulo = 1;
+  public static int division = 2;
+  public static int multiplication = 3;
+  public static int subtraction = 4;
+  public static int addition = 5;
+
+  private String result;
+  private int depth;
+  static final boolean braceOnNextLine = true;
 
   public FormatVisitor()
   {
@@ -47,9 +32,15 @@ public class FormatVisitor implements Visitor
   public String getResult()
   {
     //TODO
+    for (int i = result.length()-1; i > 0; i--)
+    {
+      if(result.charAt(i) == '\n')
+        result = result.substring(0, i);
+      else
+        break;
+    }
     System.out.println(result);
     return result;
-    //return result.substring(0, result.length()-1);
   }
 
   @Override
@@ -62,8 +53,9 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Function item)
   {
-    add(item.getType(), item.getName());
+    add(item.getType(), " ", item.getName());
     item.getParameters().accept(this);
+    add("{\n");
     for (int i = 0; i < item.getDeclarations().length; i++)
     {
       check(item.getDeclarations()[i]);
@@ -72,45 +64,56 @@ public class FormatVisitor implements Visitor
     {
       check(item.getStatements()[i]);
     }
+    add("}\n\n");
   }
 
   @Override
   public void visit(Parameters item)
   {
+    add("(");
     for (int i = 0; i < item.getNames().length; i++)
     {
-      add(item.getTypes()[i], item.getNames()[i], ",");
+      add(item.getTypes()[i], " ", item.getNames()[i]);
+      if(i < item.getNames().length-1)
+        sep();
     }
+    add(")");
+    checkBrace();
   }
 
   @Override
   public void visit(Declaration item)
   {
     //TODO type
+    if(item.getNames().length == 0)
+      return;
     add("int ");
-    for(String name : item.getNames())
-      add(name, ",");
+    for (int i = 0; i < item.getNames().length; i++)
+    {
+      add(item.getNames()[i]);
+      if(i < item.getNames().length-1)
+        sep();
+      else
+        end();
+    }
   }
 
   @Override
   public void visit(Assignment item)
   {
     add(item.getName());
+    addSpaced("=");
     item.getExpression().accept(this);
+    add(";\n");
   }
 
   @Override
   public void visit(Composite item)
   {
+    add("{\n");
     for(Statement stmt : item.getStatements())
       check(stmt);
-    /* Results in incorrect indentation
-    if()
-      {
-        bla();
-      }
-    else
-     */
+    add("}\n");
   }
 
   @Override
@@ -118,7 +121,8 @@ public class FormatVisitor implements Visitor
   {
     add("if(");
     item.getCond().accept(this);
-    add(")\n");
+    add(")");
+    checkBrace();
     item.getThenBranch().accept(this);
   }
 
@@ -128,9 +132,11 @@ public class FormatVisitor implements Visitor
     //TODO newlines missing at most places
     add("if(");
     item.getCond().accept(this);
-    add(")\n");
+    add(")");
+    checkBrace();
     item.getThenBranch().accept(this);
     add("else");
+    checkBrace();
     item.getElseBranch().accept(this);
   }
 
@@ -139,14 +145,18 @@ public class FormatVisitor implements Visitor
   {
     add("while(");
     item.getCond().accept(this);
-    add(")\n");
+    add(")");
+    checkBrace();
     item.getBody().accept(this);
   }
 
   @Override
   public void visit(Read item)
   {
-    add(item.getName(), "= read()");
+    add(item.getName());
+    addSpaced("=");
+    add("read()");
+    end();
   }
 
   @Override
@@ -154,7 +164,8 @@ public class FormatVisitor implements Visitor
   {
     add("= write (");
     item.getExpression().accept(this);
-    add(");");
+    add(")");
+    end();
   }
 
   @Override
@@ -162,6 +173,7 @@ public class FormatVisitor implements Visitor
   {
     add("return ");
     item.getExpression().accept(this);
+    end();
   }
 
   @Override
@@ -181,7 +193,7 @@ public class FormatVisitor implements Visitor
   public void visit(Binary item)
   {
     check(item.getLhs(), item.firstLevelPriority(), true);
-    addS(item.getOperator());
+    addSpaced(item.getOperator());
     check(item.getRhs(), item.firstLevelPriority(), false);
   }
 
@@ -189,7 +201,7 @@ public class FormatVisitor implements Visitor
   public void visit(Unary item)
   {
     add(item.getOperator());
-    check(item.getOperand(), item.firstLevelPriority(), false);
+    check(item.getOperand(), item.firstLevelPriority(), true);
   }
 
   @Override
@@ -221,16 +233,16 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(BinaryCondition item)
   {
-    check(item.getLhs(), item.firstLevelPriority(), true);
-    addS(item.getOperator());
-    check(item.getRhs(), item.firstLevelPriority(), false);
+    check(item.getLhs(), item.firstLevelPriority());
+    addSpaced(item.getOperator());
+    check(item.getRhs(), item.firstLevelPriority());
   }
 
   @Override
   public void visit(Comparison item)
   {
     check(item.getLhs(), item.firstLevelPriority(), true);
-    addS(item.getOperator());
+    addSpaced(item.getOperator());
     check(item.getRhs(), item.firstLevelPriority(), false);
   }
 
@@ -238,7 +250,7 @@ public class FormatVisitor implements Visitor
   public void visit(UnaryCondition item)
   {
     add(item.getOperator());
-    check(item.getOperand(), item.firstLevelPriority(), false);
+    check(item.getOperand(), item.firstLevelPriority());
   }
 
   @Override
@@ -251,36 +263,40 @@ public class FormatVisitor implements Visitor
   {
     boolean isBraced;
     if(isLeft)
-      isBraced = side.firstLevelPriority() > priority;
+      isBraced = (side.firstLevelPriority() >> 1) > (priority >> 1);
     else
-      isBraced = side.firstLevelPriority() >= priority;
-    if(isBraced)
-    {
-      //Winter is coming
-      add("(");
+      isBraced = side.firstLevelPriority() > priority
+          || side.firstLevelPriority() == priority
+          && priority % 2 == 0;
+
+    if(isBraced) //Winter is coming
+      brace(side);
+    else
       side.accept(this);
-      add(")");
-      return;
-    }
-    side.accept(this);
   }
 
-  private void check(Condition side, int priority, boolean isLeft)
+  private void check(Condition side, int priority)
   {
-    boolean isBraced;
-    if(isLeft)
-      isBraced = side.firstLevelPriority() > priority;
+    boolean isBraced = side.firstLevelPriority() > priority;
+
+    if(isBraced) //Winter is coming
+      brace(side);
     else
-      isBraced = side.firstLevelPriority() >= priority;
-    if(isBraced)
-    {
-      //Winter is coming
-      add("(");
       side.accept(this);
-      add(")");
-      return;
-    }
-    side.accept(this);
+  }
+
+  private void brace(Expression item)
+  {
+    add("(");
+    item.accept(this);
+    add(")");
+  }
+
+  private void brace(Condition item)
+  {
+    add("(");
+    item.accept(this);
+    add(")");
   }
 
   private void check(Statement side)
@@ -299,21 +315,45 @@ public class FormatVisitor implements Visitor
 
   private void check(Function side)
   {
-    depth++;
     side.accept(this);
-    depth--;
   }
 
-  private void add(Object... appendage)
+  private void add(Object... objs)
   {
-    for (Object obj : appendage)
-    {
-      result += obj.toString() + "";
-    }
+    if(depth > 0 && result.charAt(result.length()-1) == '\n')
+      for (int i = 0; i < depth; i++)
+      {
+        result += "  ";
+      }
+    for(Object obj : objs)
+      result += obj.toString();
   }
 
-  private void addS(Object appendage)
+  private void addSpaced(Object obj)
   {
-    result += " " + appendage.toString() + " ";
+    if(depth > 0 && result.charAt(result.length()-1) == '\n')
+      for (int i = 0; i < depth; i++)
+      {
+        result += "  ";
+      }
+    result += " " + obj.toString() + " ";
+  }
+
+  private void sep()
+  {
+    result += ", ";
+  }
+
+  private void end()
+  {
+    result += ";\n";
+  }
+
+  private void checkBrace()
+  {
+    if(braceOnNextLine)
+      add("\n");
+    else
+      add(" ");
   }
 }

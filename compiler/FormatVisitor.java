@@ -123,21 +123,35 @@ public class FormatVisitor implements Visitor
     item.getCond().accept(this);
     add(")");
     checkBrace();
+    boolean isComposite = item.getThenBranch() instanceof Composite;
+    if(!isComposite)
+      depth++;
     item.getThenBranch().accept(this);
+    if(!isComposite)
+      depth--;
   }
 
   @Override
   public void visit(IfThenElse item)
   {
-    //TODO newlines missing at most places
     add("if(");
     item.getCond().accept(this);
     add(")");
     checkBrace();
+    boolean isComposite = item.getThenBranch() instanceof Composite;
+    if(!isComposite)
+      depth++;
     item.getThenBranch().accept(this);
+    if(!isComposite)
+      depth--;
     add("else");
     checkBrace();
+    isComposite = item.getElseBranch() instanceof Composite;
+    if(!isComposite)
+      depth++;
     item.getElseBranch().accept(this);
+    if(!isComposite)
+      depth--;
   }
 
   @Override
@@ -147,7 +161,12 @@ public class FormatVisitor implements Visitor
     item.getCond().accept(this);
     add(")");
     checkBrace();
+    boolean isComposite = item.getBody() instanceof Composite;
+    if(!isComposite)
+      depth++;
     item.getBody().accept(this);
+    if(!isComposite)
+      depth--;
   }
 
   @Override

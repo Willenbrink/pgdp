@@ -3,18 +3,41 @@ package compiler;
 public class FormatVisitor implements Visitor
 {
   /*
+  0. Number
+  1. True/False (bool)
+  2. Negation, Multiplikation, Division
+  3. And
+  4. Modulo
+  5. Or
+  6. Minus
+
+  8. Plus
+
+
   0: Number, True/False
 1: Negation
-2: Modulo &&
-3: Multiplikation, Division ||
-5: Plus
-4. Minus
-…
+2:  &&
+3:||
 2. Comparison turns to boolean and does not have any priority
    */
 
+  //Priorities
+  public static int number = 0;
+  public static int negation = 2;
+  public static int multiplication = 2;
+  public static int modulo = 4;
+  public static int division = 2;
+  public static int subtraction = 6; //TODO substraction subtraction
+  public static int addition = 6;
+  public static int bool = 1;
+  public static int and = 3;
+  public static int or = 5;
+  public static int comparison = 3;
+  public static int call = -1;
+
   String result;
   int depth; //TODO indentation
+  //TODO priority in stmt not allowed
 
   public FormatVisitor()
   {
@@ -157,16 +180,16 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Binary item)
   {
-    check(item.getLhs(), item.firstLevelPriority());
+    check(item.getLhs(), item.firstLevelPriority(), true);
     addS(item.getOperator());
-    check(item.getRhs(), item.firstLevelPriority());
+    check(item.getRhs(), item.firstLevelPriority(), false);
   }
 
   @Override
   public void visit(Unary item)
   {
     add(item.getOperator());
-    check(item.getOperand(), item.firstLevelPriority());
+    check(item.getOperand(), item.firstLevelPriority(), false);
   }
 
   @Override
@@ -198,24 +221,24 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(BinaryCondition item)
   {
-    check(item.getLhs(), item.firstLevelPriority());
+    check(item.getLhs(), item.firstLevelPriority(), true);
     addS(item.getOperator());
-    check(item.getRhs(), item.firstLevelPriority());
+    check(item.getRhs(), item.firstLevelPriority(), false);
   }
 
   @Override
   public void visit(Comparison item)
   {
-    check(item.getLhs(), item.firstLevelPriority());
+    check(item.getLhs(), item.firstLevelPriority(), true);
     addS(item.getOperator());
-    check(item.getRhs(), item.firstLevelPriority());
+    check(item.getRhs(), item.firstLevelPriority(), false);
   }
 
   @Override
   public void visit(UnaryCondition item)
   {
     add(item.getOperator());
-    check(item.getOperand(), item.firstLevelPriority());
+    check(item.getOperand(), item.firstLevelPriority(), false);
   }
 
   @Override
@@ -224,9 +247,13 @@ public class FormatVisitor implements Visitor
 
   }
 
-  private void check(Expression side, int priority)
+  private void check(Expression side, int priority, boolean isLeft)
   {
-    boolean isBraced = side.firstLevelPriority() > priority;
+    boolean isBraced;
+    if(isLeft)
+      isBraced = side.firstLevelPriority() > priority;
+    else
+      isBraced = side.firstLevelPriority() >= priority;
     if(isBraced)
     {
       //Winter is coming
@@ -238,9 +265,13 @@ public class FormatVisitor implements Visitor
     side.accept(this);
   }
 
-  private void check(Condition side, int priority)
+  private void check(Condition side, int priority, boolean isLeft)
   {
-    boolean isBraced = side.firstLevelPriority() > priority;
+    boolean isBraced;
+    if(isLeft)
+      isBraced = side.firstLevelPriority() > priority;
+    else
+      isBraced = side.firstLevelPriority() >= priority;
     if(isBraced)
     {
       //Winter is coming

@@ -37,11 +37,11 @@ public class Binary extends Expression
   {
     switch (operator)
     {
-      case MultiplicationOperator: return 3;
-      case DivisionOperator: return 3;
-      case Modulo: return 2;
-      case Plus: return 5;
-      case Minus: return 4;
+      case MultiplicationOperator: return FormatVisitor.multiplication;
+      case DivisionOperator: return FormatVisitor.division;
+      case Modulo: return FormatVisitor.modulo;
+      case Plus: return FormatVisitor.addition;
+      case Minus: return FormatVisitor.subtraction;
       default: throw new RuntimeException("Invalid Binop");
     }
   }

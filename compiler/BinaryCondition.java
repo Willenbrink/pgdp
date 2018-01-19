@@ -37,8 +37,8 @@ public class BinaryCondition extends Condition
   {
     switch (operator)
     {
-      case And: return 2;
-      case Or: return 3;
+      case And: return FormatVisitor.and;
+      case Or: return FormatVisitor.or;
       default: throw new RuntimeException("Invalid Bbinop");
     }
   }

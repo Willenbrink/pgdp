@@ -36,7 +36,7 @@ public class Comparison extends Condition
   public int firstLevelPriority()
   {
     //TODO
-    return 2;
+    return FormatVisitor.comparison;
   }
 }
 //UTF-8 Encoded ä

@@ -30,7 +30,7 @@ public class Call extends Expression
   public int firstLevelPriority()
   {
     //TODO
-    return -1;
+    return FormatVisitor.call;
   }
 
 

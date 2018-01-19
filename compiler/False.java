@@ -10,7 +10,7 @@ public class False extends Condition
   @Override
   public int firstLevelPriority()
   {
-    return 0;
+    return FormatVisitor.bool;
   }
 }
 //UTF-8 Encoded ä

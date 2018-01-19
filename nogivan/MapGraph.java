@@ -2,6 +2,7 @@ package nogivan;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -80,7 +81,45 @@ public class MapGraph
    */
   public RoutingResult route(MapPoint from, MapPoint to)
   {
+    /*
+    BinomialHeap vermutet = new BinomialHeap();
+    vermutet.add(closest(from));
+    List<Eisscholle> tour = new ArrayList<>();
 
+    //2
+    while (vermutet.size() > 0)
+    {
+      //2a
+      Eisscholle closest = vermutet.poll();
+      addBekannt(closest);
+
+      //2b
+      setNachbar(closest, seewege);
+      calculateDistance(closest, seewege);
+
+      //2c
+      while (nachbarschollen.size() > 0)
+      {
+        Eisscholle eisscholle = nachbarschollen.poll();
+        if(eisscholle.getState() != Eisscholle.BEKANNT)
+          vermutet.add(eisscholle);
+      }
+    }
+
+    Eisscholle walk = eisschollen[endIndex];
+    while (walk != eisschollen[startIndex])
+    {
+      tour.add(walk);
+      walk = walk.getVorgaenger();
+    }
+    tour.add(walk);
+    List<Eisscholle> finalTour = new ArrayList<>();
+    for (int i = tour.size() - 1; i >= 0; i--)
+    {
+      finalTour.add(tour.get(i));
+    }
+    return finalTour;
+    */
     return null;
   }
 

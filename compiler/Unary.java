@@ -29,7 +29,7 @@ public class Unary extends Expression
   @Override
   public int firstLevelPriority()
   {
-    return 1;
+    return FormatVisitor.negation;
   }
 }
 //UTF-8 Encoded ä

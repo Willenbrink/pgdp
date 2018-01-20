@@ -38,6 +38,8 @@ public class Interpreter extends MiniJava
   private static int[] program;
   private static int free = 0;
 
+  private static int[] heap;
+
   private static String[] labels;
 
   private static Dictionary<Integer, String> codes = new Hashtable<>();
@@ -392,6 +394,7 @@ public class Interpreter extends MiniJava
 
     program = prog;
     stack = new int[32];
+    heap = new int[128];
     pointer = -1;
     frame = -1;
     free = 0;

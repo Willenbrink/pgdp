@@ -219,7 +219,6 @@ public class MiniJavaParser
 
     // Name [expr] = expr;
     {
-      //TODO verify
       from = start;
       String name = parseName();
       boolean isValid = Pattern.matches("\\[", program[from++]);
@@ -343,7 +342,6 @@ public class MiniJavaParser
         && Pattern.matches("\\]", program[from++]))
       return Type.Array;
     from--;
-    //TODO verify
     if (Pattern.matches("int", token))
     {
       return Type.Integer;
@@ -414,7 +412,6 @@ public class MiniJavaParser
 
     //expr [ expr ]
     {
-      //TODO verify
       Expression expr = parseBasicExpression();
       boolean isValid = Pattern.matches("\\[", program[from++]);
       if(isValid && expr != null)

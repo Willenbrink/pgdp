@@ -35,7 +35,6 @@ public class Comparison extends Condition
   @Override
   public int firstLevelPriority()
   {
-    //TODO
     return FormatVisitor.comparison;
   }
 }

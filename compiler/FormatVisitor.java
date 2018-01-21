@@ -3,7 +3,7 @@ package compiler;
 public class FormatVisitor implements Visitor
 {
   //Priorities
-  public static int call = 0;
+  public static int call = 0; //or any other 0-value statement e.g. array
 
   //Binary
   public static int bool = 0;
@@ -13,7 +13,7 @@ public class FormatVisitor implements Visitor
   public static int or = 5;
 
   //Arithmetic
-  public static int number = 0;
+  public static int number = 0; //or name
   public static int modulo = 1;
   public static int division = 2;
   public static int multiplication = 3;
@@ -31,7 +31,7 @@ public class FormatVisitor implements Visitor
 
   public String getResult()
   {
-    //TODO
+    //Entfernt alle \n am Ende des Programms
     for (int i = result.length()-1; i > 0; i--)
     {
       if(result.charAt(i) == '\n')
@@ -84,7 +84,7 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Declaration item)
   {
-    //TODO type
+    //TODO anpassen für Arrays
     if(item.getNames().length == 0)
       return;
     add("int ");
@@ -198,7 +198,6 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(Variable item)
   {
-    //TODO type missing?
     add(item.getName());
   }
 
@@ -281,7 +280,6 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(ArrayInitializer item)
   {
-    //TODO der nicht so interessante Teil
     add("new int[");
     check(item.getExpr(), item.firstLevelPriority(), true);
     add("]");

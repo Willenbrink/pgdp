@@ -29,7 +29,6 @@ public class Call extends Expression
   @Override
   public int firstLevelPriority()
   {
-    //TODO
     return FormatVisitor.call;
   }
 

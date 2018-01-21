@@ -22,7 +22,7 @@ public class Variable extends Expression
   @Override
   public int firstLevelPriority()
   {
-    return FormatVisitor.number; //TODO name not number
+    return FormatVisitor.number;
   }
 }
 //UTF-8 Encoded ä

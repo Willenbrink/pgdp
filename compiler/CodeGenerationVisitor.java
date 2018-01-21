@@ -333,7 +333,6 @@ public class CodeGenerationVisitor implements Visitor
   @Override
   public void visit(ArrayInitializer item)
   {
-    //TODO der interessante Teil
     item.getExpr().accept(this);
     addCode(Interpreter.ALLOCH);
   }
@@ -341,7 +340,6 @@ public class CodeGenerationVisitor implements Visitor
   @Override
   public void visit(ArrayAccess item)
   {
-    //TODO magie
     item.getField().accept(this);
     item.getExpr().accept(this);
     addCode(Interpreter.LDH);
@@ -350,7 +348,6 @@ public class CodeGenerationVisitor implements Visitor
   @Override
   public void visit(ArrayAssignment item)
   {
-    //TODO magie
     item.getValue().accept(this);
     item.getField().accept(this);
     addCode(Interpreter.LDS, getVar(item.getName()));

@@ -33,9 +33,9 @@ public class NogivanTest {
     assertTrue(path[0].getId() == 277698459L);
     assertTrue(path[path.length - 1].getId() == 277698572L);
     int pathLength = lengthAndCheck(g, rr.getPath());
-    assertTrue(pathLength == rr.getDistance());
+    assertEquals(pathLength, rr.getDistance());
     
-    assertTrue(rr.getDistance() == 254);
+    assertEquals(rr.getDistance(), 254);
 
     GPXWriter writer = new GPXWriter("testabcd1.gpx");
     writer.writeGPX(rr);
@@ -56,11 +56,30 @@ public class NogivanTest {
     assertTrue(path[0].getId() == 2496758189L);
     assertTrue(path[path.length - 1].getId() == 277698564L);
     int pathLength = lengthAndCheck(g, rr.getPath());
-    assertTrue(pathLength == rr.getDistance());
+    assertEquals(pathLength, rr.getDistance());
     
-    assertTrue(rr.getDistance() == 804);
+    assertEquals(rr.getDistance(), 804);
 
     GPXWriter writer = new GPXWriter("testabcd2.gpx");
     writer.writeGPX(rr);
+  }
+
+  @Test
+  public void munich() throws SAXException, IOException, ParserConfigurationException {
+    System.out.println("Reading OSM data...");
+    MapGraph g = MapParser.parseFile("map.osm");
+    System.out.println("Finished reading OSM data...");
+    RoutingResult rr = g.route(new MapPoint(47.862916, 11.0275), new MapPoint(48.349388, 11.768416));
+
+    assertNotNull(rr);
+
+    OSMNode[] path = rr.getPath();
+    assertTrue(path.length > 0);
+    int pathLength = lengthAndCheck(g, rr.getPath());
+    assertTrue(pathLength == rr.getDistance());
+
+    GPXWriter gw = new GPXWriter("munich.gpx");
+    gw.writeGPX(rr);
+    gw.close();
   }
 }

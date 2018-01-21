@@ -450,7 +450,7 @@ public class Interpreter extends MiniJava
           mod();
           break;
         case LDI:
-          //TODO Funktioniert nicht mit der Optimierung wegen Platzmangel
+          //Funktioniert nicht mit der Optimierung wegen Platzmangel
           int unsigned = getImmUnsigned(prog[ip]);
           ldi(unsigned);
           break;

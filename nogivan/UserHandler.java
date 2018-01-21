@@ -40,6 +40,7 @@ class UserHandler extends DefaultHandler
       double lon = Double.parseDouble(attributes.getValue("lon"));
       OSMNode node = new OSMNode(id, lat, lon);
       map.addNode(node);
+      return;
     }
 
     //Start of way
@@ -49,12 +50,14 @@ class UserHandler extends DefaultHandler
       nodes = new ArrayList<>();
       oneWay = false;
       isValid = false;
+      return;
     }
 
     //Nodes in way
     if(qName.equalsIgnoreCase("nd"))
     {
       nodes.add(Long.parseLong(attributes.getValue("ref")));
+      return;
     }
 
     //Tags of way
@@ -64,12 +67,19 @@ class UserHandler extends DefaultHandler
       {
         oneWay = attributes.getValue(1).equalsIgnoreCase("yes");
       }
-      //TODO select
       if(attributes.getValue(0).equalsIgnoreCase("highway"))
       {
         isValid = true;
+        String[] invalidTags = new String[]{
+            "construction",
+            "proposed",
+            //"footway",
+        };
+        for(String tag : invalidTags)
+          if(attributes.getValue(1).equalsIgnoreCase(tag))
+            isValid = false;
       }
-
+      return;
     }
   }
 

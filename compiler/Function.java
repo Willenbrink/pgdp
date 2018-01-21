@@ -57,5 +57,13 @@ public class Function
   {
     visitor.visit(this);
   }
+
+  @Override
+  public String toString()
+  {
+    FormatVisitor visitor = new FormatVisitor();
+    accept(visitor);
+    return visitor.getResult();
+  }
 }
 //UTF-8 Encoded ä

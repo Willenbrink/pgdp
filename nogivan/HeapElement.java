@@ -1,11 +1,11 @@
 package nogivan;
 
-public class Node implements Comparable<Node>
+public class HeapElement implements Comparable<HeapElement>
 {
   OSMNode part;
   boolean vermutet;
 
-  public Node(OSMNode osmNode)
+  public HeapElement(OSMNode osmNode)
   {
     part = osmNode;
   }
@@ -22,14 +22,14 @@ public class Node implements Comparable<Node>
     this.distance = distance;
   }
 
-  private Node vorgänger;
+  private HeapElement vorgänger;
 
-  public Node getVorgänger()
+  public HeapElement getVorgänger()
   {
     return vorgänger;
   }
 
-  public void setVorgänger(Node vorgänger)
+  public void setVorgänger(HeapElement vorgänger)
   {
     this.vorgänger = vorgänger;
   }
@@ -65,7 +65,7 @@ public class Node implements Comparable<Node>
   }
 
   @Override
-  public int compareTo(Node o)
+  public int compareTo(HeapElement o)
   {
     return distance - o.distance;
   }

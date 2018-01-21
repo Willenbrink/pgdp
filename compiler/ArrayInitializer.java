@@ -23,7 +23,6 @@ public class ArrayInitializer extends Expression
   @Override
   public int firstLevelPriority()
   {
-    //TODO no sensible Value possible
     return FormatVisitor.call;
   }
 }

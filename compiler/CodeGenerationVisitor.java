@@ -337,6 +337,7 @@ public class CodeGenerationVisitor implements Visitor
   {
     {
       addCode(Interpreter.LDI, 0);
+      addCode(Interpreter.LDI, 1);
       {
         //Speichert die Länge in einem Array
         item.getExpr().accept(this);
@@ -355,6 +356,7 @@ public class CodeGenerationVisitor implements Visitor
         addCode(Interpreter.ALLOCH);
       }
       //Lädt die Länge wieder oben auf den Stack
+      addCode(Interpreter.SUB);
       addCode(Interpreter.LDH);
       addCode(Interpreter.ALLOCH);
     }

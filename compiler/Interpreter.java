@@ -739,8 +739,9 @@ public class Interpreter extends MiniJava
   {
     int ref = pop();
     int from = getFrom(ref);
+    int to = getTo(ref);
     int offset = pop();
-    if(offset > getTo(ref) || offset < -1)
+    if(offset > to || offset < -1)
       throw new RuntimeException("Accessing field outside of array");
 
     int value = heap[from+offset];
@@ -803,7 +804,8 @@ public class Interpreter extends MiniJava
     String output = "";
     for (int i = heap.length-1; i >= heap[heap.length-1]; i--)
     {
-      output += Integer.toBinaryString(heap[i]) + "|";
+      //output += Integer.toBinaryString(heap[i]) + "|";
+      output += heap[i] + "|";
     }
     return output;
 

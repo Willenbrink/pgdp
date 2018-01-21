@@ -138,13 +138,36 @@ public class CompilerTest {
   }
 
   @Test
+  public void testArrayLength3() {
+    String code =
+        "int[] generateArray() {\n" +
+            "  int[] arr;\n" +
+            "  int i;\n" +
+            "  arr = new int[4];\n" +
+            "  i = 2;\n" +
+            "  while(i < length(arr)) {\n" +
+            "    arr[i] = 2*i;\n" +
+            "    i = i + 1;\n" +
+            "  }\n" +
+            "  return arr;\n" +
+            "}\n" +
+            "int main() {\n" +
+            "  int[] arr;\n" +
+            "  arr = generateArray();\n" +
+            "  return length(arr);\n" +
+            "}";
+    int[] assembly = Compiler.compile(code);
+    int retVal = Interpreter.execute(assembly);
+    assertEquals(4, retVal);
+  }
+
+  @Test
   public void testArrayLength2() {
     String code =
             "int main() {\n" +
             "  int[] arr;\n" +
             "  arr = new int[10];\n" +
             "  return length(arr);\n" +
-            //"  return 0;" +
             "}";
     int[] assembly = Compiler.compile(code);
     int retVal = Interpreter.execute(assembly);

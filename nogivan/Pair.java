@@ -18,3 +18,4 @@ public class Pair<_1, _2> {
     return o instanceof Pair && ((Pair) o)._1.equals(_1) && ((Pair) o)._2.equals(_2);
   }
 }
+//UTF-8 ä Ich mach es tatsächlich per Commandline und in jedem Dokument... mit echo TEXT | tee -a `ls | grep .java` MIT EINZELNEN ANFÜHRUNGSZEICHEN, das macht ansonsten alles kaputt...

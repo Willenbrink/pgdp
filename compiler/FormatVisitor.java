@@ -412,3 +412,4 @@ public class FormatVisitor implements Visitor
       add(" ");
   }
 }
+//UTF-8 ä Ich mach es tatsächlich per Commandline und in jedem Dokument... mit echo TEXT | tee -a `ls | grep .java` MIT EINZELNEN ANFÜHRUNGSZEICHEN, das macht ansonsten alles kaputt...

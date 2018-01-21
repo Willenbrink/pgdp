@@ -741,9 +741,8 @@ public class Interpreter extends MiniJava
     int from = getFrom(ref);
     int to = getTo(ref);
     int offset = pop();
-    if(offset > to || offset < -1)
-      throw new RuntimeException("Accessing field outside of array");
-
+    if(offset+from > heap.length-1 || from+offset < 0)
+      throw new RuntimeException("Accessing invalid heapfields");
     int value = heap[from+offset];
     push(value);
   }
@@ -752,17 +751,20 @@ public class Interpreter extends MiniJava
   {
     int ref = pop();
     int from = getFrom(ref);
-    int offset = pop();
     int to = getTo(ref);
-    //Eigentlich auch -1 aber das musste wegen dem Längeproblem wieder rückgängig gemacht werden
-    if(offset > to || offset < -1)
-      throw new RuntimeException("Accessing field outside of array");
+    int offset = pop();
+    //Eigentlich muss auch -1 ausgechlossen werden
+    // das musste wegen dem Längeproblem wieder rückgängig gemacht werden
+    //Anscheinend soll der Interpreter überhaupt nur auf OutOfBounds prüfen, daher hier keine Prüfung
+    //if(offset > to || offset < -1)
+    //  throw new RuntimeException("Accessing field outside of array");
+    if(offset+from > heap.length-1 || from+offset < 0)
+      throw new RuntimeException("Accessing invalid heapfields");
     heap[from+offset] = pop();
   }
 
   private static void alloch()
   {
-    //TODO Was passiert beim Overflow?
     int headerEnd = heap[heap.length-1];
     int prevObjectEnd;
     if(headerEnd != heap.length-1)
@@ -771,6 +773,10 @@ public class Interpreter extends MiniJava
       prevObjectEnd = 0;
     int from = prevObjectEnd;
     int to = from+pop();
+    if(to < from)
+      throw new RuntimeException("Negative Arraysize");
+    if(to >= headerEnd)
+      throw new RuntimeException("Heap is full/Overflow");
     heap[headerEnd-1] = (to << 16) ^ (from & 0xFFFF);
     push(heap[headerEnd-1]);
     heap[heap.length-1]--;

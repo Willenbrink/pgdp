@@ -85,6 +85,8 @@ public class FormatVisitor implements Visitor
   public void visit(Declaration item)
   {
     //TODO anpassen für Arrays
+    //Wurde für diese Abgabe noch nicht gemacht, wird eventuell später noch gemacht
+    //wenn noch mehr Typen hinzugefügt werden
     if(item.getNames().length == 0)
       return;
     add("int ");

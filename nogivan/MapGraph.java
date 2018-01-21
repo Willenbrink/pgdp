@@ -58,6 +58,7 @@ public class MapGraph
   public OSMNode closest(MapPoint p)
   {
     int closest = Integer.MAX_VALUE;
+    long id = 0;
     OSMNode closeNode = null;
     for (Entry<Long, OSMNode> node : nodes.entrySet())
     {
@@ -66,6 +67,14 @@ public class MapGraph
       {
         closeNode = node.getValue();
         closest = dist;
+        id = node.getKey();
+      }
+      //Sollte eigentlich nicht notwendig sein aber man kann Mengen ja nicht vertrauen
+      if (dist <= closest && node.getKey() < id)
+      {
+        closeNode = node.getValue();
+        closest = dist;
+        id = node.getKey();
       }
     }
     return closeNode;
@@ -136,6 +145,8 @@ public class MapGraph
         {
           neighbor.setDistance(newDistance);
           neighbor.setVorgänger(next);
+          //Kann man die Aufrufe noch weiter reduzieren? Sie müssen ja ersetzt werden
+          //wenn die Distanz kleiner ist und sie schon enthalten sind
           if(neighbor.vermutet)
             vermutet.replaceWithSmallerElement(handles.get(neighbor.getId()), neighbor);
           else
@@ -156,7 +167,7 @@ public class MapGraph
           vermute(heapElement);
       }
     }
-    //TODO exceptions in allen programmen behandeln
+
     List<HeapElement> result = new ArrayList<>();
 
     HeapElement walk = target;

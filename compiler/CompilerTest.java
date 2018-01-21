@@ -143,7 +143,7 @@ public class CompilerTest {
         "int[] generateArray() {\n" +
             "  int[] arr;\n" +
             "  int i;\n" +
-            "  arr = new int[4];\n" +
+            "  arr = new int[120];\n" +
             "  i = 2;\n" +
             "  while(i < length(arr)) {\n" +
             "    arr[i] = 2*i;\n" +

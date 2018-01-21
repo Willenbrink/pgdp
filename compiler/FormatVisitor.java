@@ -119,7 +119,7 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(IfThen item)
   {
-    add("if(");
+    add("if (");
     item.getCond().accept(this);
     add(")");
     checkBrace();
@@ -134,7 +134,7 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(IfThenElse item)
   {
-    add("if(");
+    add("if (");
     item.getCond().accept(this);
     add(")");
     checkBrace();
@@ -157,7 +157,7 @@ public class FormatVisitor implements Visitor
   @Override
   public void visit(While item)
   {
-    add("while(");
+    add("while (");
     item.getCond().accept(this);
     add(")");
     checkBrace();
@@ -276,6 +276,34 @@ public class FormatVisitor implements Visitor
   public void visit(Empty item)
   {
 
+  }
+
+  @Override
+  public void visit(ArrayInitializer item)
+  {
+    //TODO der nicht so interessante Teil
+    add("new int[");
+    check(item.getExpr(), item.firstLevelPriority(), true);
+    add("]");
+  }
+
+  @Override
+  public void visit(ArrayAccess item)
+  {
+    check(item.getExpr(), item.firstLevelPriority(), false);
+    add("[");
+    check(item.getField(), item.firstLevelPriority(), true);
+    add("]");
+  }
+
+  @Override
+  public void visit(ArrayAssignment item)
+  {
+    add(item.getName(), " [");
+    item.getField().accept(this);
+    add("] = ");
+    item.getValue().accept(this);
+    add(";");
   }
 
   private void check(Expression side, int priority, boolean isLeft)

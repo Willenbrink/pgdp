@@ -164,7 +164,7 @@ public class CompilerTest {
         "  notMatching = 0;\n" + 
         "  i = 0;\n" + 
         "  while (i < numberOfDigits / 2) {\n" + 
-        "    if (digits[i] != digits[numberOfDigits - i - 1])\n" + 
+        "    if (digits[i] != digits[(numberOfDigits - i) - 1])\n" +
         "      notMatching = notMatching + 1;\n" + 
         "    i = i + 1;\n" + 
         "  }\n" + 
@@ -178,14 +178,14 @@ public class CompilerTest {
         "int main() {\n" + 
         "  int n;\n" + 
         "  n = 0;\n" + 
-        "  n = n + isPalindrome(4224);\n" + 
-        "  n = n + isPalindrome(10);\n" + 
-        "  n = n + isPalindrome(99);\n" + 
-        "  n = n + isPalindrome(123321);\n" + 
-        "  n = n + isPalindrome(19910);\n" + 
-        "  n = n + isPalindrome(0990);\n" + 
-        "  n = n + isPalindrome(111111);\n" + 
-        "  n = n + isPalindrome(1112111);\n" + 
+        "  n = n + isPalindrome(4224);\n" +
+        "  n = n + isPalindrome(10);\n" +
+        "  n = n + isPalindrome(99);\n" +
+        "  n = n + isPalindrome(123321);\n" +
+        "  n = n + isPalindrome(19910);\n" +
+        "  n = n + isPalindrome(0990);\n" +
+        "  n = n + isPalindrome(111111);\n" +
+        "  n = n + isPalindrome(1112111);\n" +
         "  return n;" +
         "}";
     int[] assembly = Compiler.compile(code);

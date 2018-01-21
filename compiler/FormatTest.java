@@ -13,12 +13,12 @@ public class FormatTest {
         //ggt
         "int ggt(int a, int b) {\n" +
             "  int temp;\n" +
-            "  if(b > a) {\n" +
+            "  if (b > a) {\n" +
             "    temp = a;\n" +
             "    a = b;\n" +
             "    b = temp;\n" +
             "  }\n" +
-            "  while(a != 0) {\n" +
+            "  while (a != 0) {\n" +
             "    temp = a;\n" +
             "    a = a % b;\n" +
             "    b = temp;\n" +
@@ -35,31 +35,29 @@ public class FormatTest {
             "}",
         //fak
         "int fak(int n) {\n" +
-            "  if(n == 0)\n" +
+            "  if (n == 0) {\n" +
             "    return 1;\n" +
+            "  }\n" +
             "  return n * fak(n - 1);\n" +
             "}\n" +
             "\n" +
             "int main() {\n" +
             "  return fak(6);\n" +
-            "}\n",
+            "}",
         //prim-test
         "int prim(int n) {\n" +
             "  int divisors, i;\n" +
             "  divisors = 0;\n" +
-            "  \n" +
             "  i = 2;\n" +
-            "  while(i < n) {\n" +
-            "    if(n % i == 0)\n" +
+            "  while (i < n) {\n" +
+            "    if (n % i == 0) {\n" +
             "      divisors = divisors + 1;\n" +
+            "    }\n" +
             "    i = i + 1;\n" +
             "  }\n" +
-            "  \n" +
-            "  if(divisors == 0 && n >= 2) {\n" +
+            "  if (divisors == 0 && n >= 2) {\n" +
             "    return 1;\n" +
-            "  }\n" +
-            "  else\n" +
-            "  {\n" +
+            "  } else {\n" +
             "    return 0;\n" +
             "  }\n" +
             "}\n" +
@@ -78,7 +76,7 @@ public class FormatTest {
             "  prims = prims + prim(5251);\n" +
             "  return prims;\n" +
             "}"
-        };
+    };
 
     for(String code : codesWithBraceOnSameLine)
     {
@@ -98,13 +96,13 @@ public class FormatTest {
         //ggt
         "int ggt(int a, int b)\n{\n" +
             "  int temp;\n" +
-            "  if(b > a)\n" +
+            "  if (b > a)\n" +
             "  {\n" +
             "    temp = a;\n" +
             "    a = b;\n" +
             "    b = temp;\n" +
             "  }\n" +
-            "  while(a != 0)\n" +
+            "  while (a != 0)\n" +
             "  {\n" +
             "    temp = a;\n" +
             "    a = a % b;\n" +
@@ -124,7 +122,7 @@ public class FormatTest {
         //fak
         "int fak(int n)\n" +
             "{\n" +
-            "  if(n == 0)\n" +
+            "  if (n == 0)\n" +
             "    return 1;\n" +
             "  return n * fak(n - 1);\n" +
             "}\n" +
@@ -139,13 +137,13 @@ public class FormatTest {
             "  int divisors, i;\n" +
             "  divisors = 0;\n" +
             "  i = 2;\n" +
-            "  while(i < n)\n" +
+            "  while (i < n)\n" +
             "  {\n" +
-            "    if(n % i == 0)\n" +
+            "    if (n % i == 0)\n" +
             "      divisors = divisors + 1;\n" +
             "    i = i + 1;\n" +
             "  }\n" +
-            "  if(divisors == 0 && n >= 2)\n" +
+            "  if (divisors == 0 && n >= 2)\n" +
             "  {\n" +
             "    return 1;\n" +
             "  }\n" +
@@ -230,8 +228,6 @@ public class FormatTest {
     assertEquals("-99 * 11", visitor.getResult());
   }
 
-  //TODO
-  /*
   @Test
   public void testExpression6() {
     Expression exp = new ArrayAccess(new ArrayInitializer(new Number(99)), new Number(3));
@@ -239,7 +235,6 @@ public class FormatTest {
     exp.accept(visitor);
     assertEquals("(new int[99])[3]", visitor.getResult());
   }
-  */
 
   @Test
   public void testExpression7() {

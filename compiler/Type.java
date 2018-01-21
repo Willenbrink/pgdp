@@ -2,7 +2,7 @@ package compiler;
 
 public enum Type
 {
-  Integer;
+  Integer, Array;
 
   @Override
   public String toString()
@@ -10,6 +10,7 @@ public enum Type
     switch(this)
     {
       case Integer: return "int";
+      case Array: return "int[]";
       default: throw new RuntimeException("Invalid Comparison");
     }
   }

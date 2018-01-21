@@ -39,7 +39,7 @@ public class MiniJavaParser
       substring = program.substring(i, program.length());
       Pattern p = Pattern.compile(""
           + "([\\s]*"
-          + "(\\(|\\)|\\{|}|,|;" //Kontrollstrukturen
+          + "(\\(|\\)|\\{|}|,|;|\\[|\\]" //Kontrollstrukturen
           + "|(\\d)+|([a-zA-Z][a-zA-Z0-9]*)" //Namen und Zahlen
           + "|\\+|-|\\*|/|%" //Operatoren
           + "|==?|!=?|<=?|>=?|&&|\\|\\|)" //Boolean Operatoren
@@ -217,6 +217,21 @@ public class MiniJavaParser
         return new Assignment(name, expr);
     }
 
+    // Name [expr] = expr;
+    {
+      //TODO verify
+      from = start;
+      String name = parseName();
+      boolean isValid = Pattern.matches("\\[", program[from++]);
+      Expression expr = parseExpression();
+      isValid = isValid && Pattern.matches("\\]", program[from++]);
+      isValid = isValid && Pattern.matches("=", program[from++]);
+      Expression expr2 = parseExpression();
+      isValid = isValid && Pattern.matches(";", program[from++]);
+      if (isValid && name != null && expr != null && expr2 != null)
+        return new ArrayAssignment(name, expr, expr2);
+    }
+
     //Name = read();
     {
       from = start;
@@ -322,6 +337,13 @@ public class MiniJavaParser
   public Type parseType()
   {
     String token = program[from++];
+
+    if(Pattern.matches("int", token)
+        && Pattern.matches("\\[", program[from++])
+        && Pattern.matches("\\]", program[from++]))
+      return Type.Array;
+    from--;
+    //TODO verify
     if (Pattern.matches("int", token))
     {
       return Type.Integer;
@@ -378,15 +400,34 @@ public class MiniJavaParser
     int start = from;
 
     //expr binop expr
-    Expression expr = parseBasicExpression();
-    Binop binop = parseBinop();
-    if (expr != null && binop != null)
     {
-      Expression expr2 = parseExpression();
-      if (expr2 != null)
-        return new Binary(expr, binop, expr2);
+      Expression expr = parseBasicExpression();
+      Binop binop = parseBinop();
+      if (expr != null && binop != null)
+      {
+        Expression expr2 = parseExpression();
+        if (expr2 != null)
+          return new Binary(expr, binop, expr2);
+      }
+      from = start;
     }
-    from = start;
+
+    //expr [ expr ]
+    {
+      //TODO verify
+      Expression expr = parseBasicExpression();
+      boolean isValid = Pattern.matches("\\[", program[from++]);
+      if(isValid && expr != null)
+      {
+        Expression expr2 = parseExpression();
+        isValid = Pattern.matches("\\]", program[from++]);
+        if (isValid && expr2 != null)
+        {
+          return new ArrayAccess(expr, expr2);
+        }
+      }
+      from = start;
+    }
 
     return parseBasicExpression();
   }
@@ -418,6 +459,21 @@ public class MiniJavaParser
           calls.put(name, expressions.size());
           return new Call(name, expressions.toArray(new Expression[0]));
         }
+      }
+    }
+
+    //new int [ expr ]
+    {
+      from = start;
+      boolean isValid = Pattern.matches("new", program[from++]);
+      isValid = isValid && Pattern.matches("int", program[from++]);
+      isValid = isValid && Pattern.matches("\\[", program[from++]);
+      if(isValid)
+      {
+        Expression expr = parseExpression();
+        isValid = isValid && Pattern.matches("\\]", program[from++]);
+        if(isValid && expr != null)
+          return new ArrayInitializer(expr);
       }
     }
 

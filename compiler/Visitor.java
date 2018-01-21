@@ -47,5 +47,11 @@ public interface Visitor
   void visit(UnaryCondition item);
 
   void visit(Empty item);
+
+  void visit(ArrayInitializer item);
+
+  void visit(ArrayAccess item);
+
+  void visit(ArrayAssignment item);
 }
 //UTF-8 Encoded ä

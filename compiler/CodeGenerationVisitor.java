@@ -63,10 +63,13 @@ public class CodeGenerationVisitor implements Visitor
     if(labels.containsKey(item.getName()))
       throw new RuntimeException("Funktion " + item.getName() + " wurde doppelt definiert");
     labels.put(item.getName(), program.size());
+    int varAmount = 0;
     for(Declaration declaration : item.getDeclarations())
     {
       declaration.accept(this);
+      varAmount += declaration.getNames().length;
     }
+    addCode(Interpreter.ALLOC, varAmount);
     for(Statement statement : item.getStatements())
     {
       statement.accept(this);
@@ -89,9 +92,16 @@ public class CodeGenerationVisitor implements Visitor
     {
       if(variables.containsKey(item.getNames()[i]))
         throw new RuntimeException("Variable " + item.getNames()[i] + " already used");
-      variables.put(item.getNames()[i], i+1);
+      variables.put(item.getNames()[i], lastVariableIndex());
     }
-    addCode(Interpreter.ALLOC, item.getNames().length);
+  }
+
+  private int lastVariableIndex()
+  {
+    int i = 1;
+    while(variables.containsValue(i))
+      i++;
+    return i;
   }
 
   public void visit(Assignment item)
@@ -318,6 +328,33 @@ public class CodeGenerationVisitor implements Visitor
 
   public void visit(Empty item)
   {
+  }
+
+  @Override
+  public void visit(ArrayInitializer item)
+  {
+    //TODO der interessante Teil
+    item.getExpr().accept(this);
+    addCode(Interpreter.ALLOCH);
+  }
+
+  @Override
+  public void visit(ArrayAccess item)
+  {
+    //TODO magie
+    item.getField().accept(this);
+    item.getExpr().accept(this);
+    addCode(Interpreter.LDH);
+  }
+
+  @Override
+  public void visit(ArrayAssignment item)
+  {
+    //TODO magie
+    item.getValue().accept(this);
+    item.getField().accept(this);
+    addCode(Interpreter.LDS, getVar(item.getName()));
+    addCode(Interpreter.STH);
   }
 
   private Integer getVar(String name)

@@ -30,6 +30,10 @@ public class Interpreter extends MiniJava
   public static final int LT = 20;
   public static final int LE = 21;
   public static final int SHL = 26;
+  public static final int LDH = 27;
+  public static final int STH = 28;
+  public static final int ALLOCH = 29;
+  //TODO add to parser
 
   private static int[] stack;
   private static int pointer = -1;
@@ -68,6 +72,9 @@ public class Interpreter extends MiniJava
     codes.put(LT, "LT");
     codes.put(LE, "LE");
     codes.put(SHL, "SHL");
+    codes.put(LDH, "LDH");
+    codes.put(STH, "STH");
+    codes.put(ALLOCH, "ALLOCH");
   }
 
   private static Dictionary<String, Boolean> immediatesMap = new Hashtable<>();
@@ -96,6 +103,9 @@ public class Interpreter extends MiniJava
     immediatesMap.put("LT", false);
     immediatesMap.put("LE", false);
     immediatesMap.put("SHL", true);
+    immediatesMap.put("LDH", false);
+    immediatesMap.put("STH", false);
+    immediatesMap.put("ALLOCH", false);
   }
 
   static void error(String message)
@@ -110,6 +120,8 @@ public class Interpreter extends MiniJava
     {
       String code = codes.get(program[i] >> 16);
       int immediate = getImm(program[i]);
+      if(code.equalsIgnoreCase("ALLOC"))
+        System.out.println();
       if(immediatesMap.get(code))
         output += i+": " + code + " " + immediate + "\n";
       else
@@ -395,6 +407,7 @@ public class Interpreter extends MiniJava
     program = prog;
     stack = new int[32];
     heap = new int[128];
+    heap[heap.length-1] = 127;
     pointer = -1;
     frame = -1;
     free = 0;
@@ -439,7 +452,7 @@ public class Interpreter extends MiniJava
         case LDI:
           //TODO Funktioniert nicht mit der Optimierung wegen Platzmangel
           int unsigned = getImmUnsigned(prog[ip]);
-          ldi(imm);
+          ldi(unsigned);
           break;
         case LDS:
           lds(imm);
@@ -491,6 +504,15 @@ public class Interpreter extends MiniJava
           break;
         case SHL:
           shl(imm);
+          break;
+        case LDH:
+          ldh();
+          break;
+        case STH:
+          sth();
+          break;
+        case ALLOCH:
+          alloch();
           break;
         default:
           error(opcode + " is no recognized instuction");
@@ -713,10 +735,61 @@ public class Interpreter extends MiniJava
     push(value);
   }
 
-  public static String stackToString(int ip)
+  private static void ldh()
+  {
+    int ref = pop();
+    int from = getFrom(ref);
+    int offset = pop();
+    if(offset > getTo(ref) || offset < 0)
+      throw new RuntimeException("Accessing field outside of array");
+
+    int value = heap[from+offset];
+    push(value);
+  }
+
+  private static void sth()
+  {
+    int ref = pop();
+    int from = getFrom(ref);
+    int offset = pop();
+    if(offset > getTo(ref) || offset < 0)
+      throw new RuntimeException("Accessing field outside of array");
+    heap[from+offset] = pop();
+  }
+
+  private static void alloch()
+  {
+    //TODO Was passiert beim Overflow?
+    int headerEnd = heap[heap.length-1];
+    int prevObjectEnd;
+    if(headerEnd != heap[heap.length-1])
+      prevObjectEnd = heap[headerEnd] >>> 16;
+    else
+      prevObjectEnd = -1;
+    int from = prevObjectEnd+1;
+    int to = from+pop();
+    heap[headerEnd-1] = (to << 16) ^ (from & 0xFFFF);
+    push(heap[headerEnd-1]);
+    heap[heap.length-1]--;
+  }
+
+  private static int getFrom(int pointer)
+  {
+    int from = pointer & 0xFFFF;
+    return from;
+  }
+
+  private static int getTo(int pointer)
+  {
+    int to = pointer >> 16;
+    return to;
+  }
+
+  //Debugfunktion um Stack ausgeben zu können
+  public static String stackToString(int pointer)
   {
     String output = "";
-    for (int i = 0; i < ip; i++)
+    for (int i = 0; i < pointer; i++)
     {
       output += stack[i] + "|";
     }

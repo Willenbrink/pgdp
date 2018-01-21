@@ -53,5 +53,7 @@ public interface Visitor
   void visit(ArrayAccess item);
 
   void visit(ArrayAssignment item);
+
+  void visit(Length item);
 }
 //UTF-8 Encoded ä

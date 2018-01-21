@@ -740,7 +740,7 @@ public class Interpreter extends MiniJava
     int ref = pop();
     int from = getFrom(ref);
     int offset = pop();
-    if(offset > getTo(ref) || offset < 0)
+    if(offset > getTo(ref) || offset < -1)
       throw new RuntimeException("Accessing field outside of array");
 
     int value = heap[from+offset];
@@ -752,7 +752,9 @@ public class Interpreter extends MiniJava
     int ref = pop();
     int from = getFrom(ref);
     int offset = pop();
-    if(offset > getTo(ref) || offset < 0)
+    int to = getTo(ref);
+    //Eigentlich auch -1 aber das musste wegen dem Längeproblem wieder rückgängig gemacht werden
+    if(offset > to || offset < -1)
       throw new RuntimeException("Accessing field outside of array");
     heap[from+offset] = pop();
   }
@@ -762,11 +764,11 @@ public class Interpreter extends MiniJava
     //TODO Was passiert beim Overflow?
     int headerEnd = heap[heap.length-1];
     int prevObjectEnd;
-    if(headerEnd != heap[heap.length-1])
+    if(headerEnd != heap.length-1)
       prevObjectEnd = heap[headerEnd] >>> 16;
     else
-      prevObjectEnd = -1;
-    int from = prevObjectEnd+1;
+      prevObjectEnd = 0;
+    int from = prevObjectEnd;
     int to = from+pop();
     heap[headerEnd-1] = (to << 16) ^ (from & 0xFFFF);
     push(heap[headerEnd-1]);
@@ -794,6 +796,17 @@ public class Interpreter extends MiniJava
       output += stack[i] + "|";
     }
     return output;
+  }
+
+  public static String heapToString()
+  {
+    String output = "";
+    for (int i = heap.length-1; i >= heap[heap.length-1]; i--)
+    {
+      output += Integer.toBinaryString(heap[i]) + "|";
+    }
+    return output;
+
   }
 }
 //UTF-8 Encoded ä

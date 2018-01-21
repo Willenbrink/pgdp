@@ -44,7 +44,7 @@ public class CodeGenerationVisitor implements Visitor
     new Call("main", new Expression[0]).accept(this);
     addCode(Interpreter.HALT);
     Function[] functions = item.getFunctions();
-    for(Function function : functions)
+    for (Function function : functions)
     {
       function.accept(this);
     }
@@ -60,17 +60,17 @@ public class CodeGenerationVisitor implements Visitor
     {
       currentReturn += item.getDeclarations()[i].getNames().length;
     }
-    if(labels.containsKey(item.getName()))
+    if (labels.containsKey(item.getName()))
       throw new RuntimeException("Funktion " + item.getName() + " wurde doppelt definiert");
     labels.put(item.getName(), program.size());
     int varAmount = 0;
-    for(Declaration declaration : item.getDeclarations())
+    for (Declaration declaration : item.getDeclarations())
     {
       declaration.accept(this);
       varAmount += declaration.getNames().length;
     }
     addCode(Interpreter.ALLOC, varAmount);
-    for(Statement statement : item.getStatements())
+    for (Statement statement : item.getStatements())
     {
       statement.accept(this);
     }
@@ -79,10 +79,10 @@ public class CodeGenerationVisitor implements Visitor
   public void visit(Parameters item)
   {
     variables.clear();
-   currentReturn = item.getNames().length;
+    currentReturn = item.getNames().length;
     for (int i = 0; i < item.getNames().length; i++)
     {
-      variables.put(item.getNames()[i], i+1-item.getNames().length);
+      variables.put(item.getNames()[i], i + 1 - item.getNames().length);
     }
   }
 
@@ -90,7 +90,7 @@ public class CodeGenerationVisitor implements Visitor
   {
     for (int i = 0; i < item.getNames().length; i++)
     {
-      if(variables.containsKey(item.getNames()[i]))
+      if (variables.containsKey(item.getNames()[i]))
         throw new RuntimeException("Variable " + item.getNames()[i] + " already used");
       variables.put(item.getNames()[i], lastVariableIndex());
     }
@@ -99,8 +99,10 @@ public class CodeGenerationVisitor implements Visitor
   private int lastVariableIndex()
   {
     int i = 1;
-    while(variables.containsValue(i))
+    while (variables.containsValue(i))
+    {
       i++;
+    }
     return i;
   }
 
@@ -113,7 +115,7 @@ public class CodeGenerationVisitor implements Visitor
 
   public void visit(Composite item)
   {
-    for(Statement statement : item.getStatements())
+    for (Statement statement : item.getStatements())
     {
       statement.accept(this);
     }
@@ -124,7 +126,7 @@ public class CodeGenerationVisitor implements Visitor
     item.getCond().accept(this);
     addCode(Interpreter.NOT);
     addCode(Interpreter.JUMP);
-    int index = program.size()-1;
+    int index = program.size() - 1;
     item.getThenBranch().accept(this);
     //An der Stelle an der der Sprung durchgeführt wird, wird jetzt das Ziel hinzugefügt
     program.set(index,
@@ -136,13 +138,13 @@ public class CodeGenerationVisitor implements Visitor
     item.getCond().accept(this);
     addCode(Interpreter.NOT);
     addCode(Interpreter.JUMP);
-    int index = program.size()-1;
+    int index = program.size() - 1;
 
     item.getThenBranch().accept(this);
 
     addCode(Interpreter.LDI, -1);
     addCode(Interpreter.JUMP);
-    int index2 = program.size()-1;
+    int index2 = program.size() - 1;
     //An der Stelle an der der Sprung durchgeführt wird, wird jetzt das Ziel hinzugefügt
     program.set(index,
         program.get(index) + program.size());
@@ -195,7 +197,7 @@ public class CodeGenerationVisitor implements Visitor
 
   public void visit(Number item)
   {
-    if(item.getValue() < 0)
+    if (item.getValue() < 0)
     {
       //Hier wurde Exception nicht geworfen, da alle Tests nicht darauf ausgelegt sind
       // negative Nummern zu verbieten
@@ -227,15 +229,15 @@ public class CodeGenerationVisitor implements Visitor
         addCode(Interpreter.DIV);
         break;
       default:
-        throw(new RuntimeException("Unknown binary operator"));
+        throw (new RuntimeException("Unknown binary operator"));
     }
   }
 
   public void visit(Unary item)
   {
     item.getOperand().accept(this);
-    if(item.getOperator() != Unop.Minus)
-        throw(new RuntimeException("Unknown unary operator"));
+    if (item.getOperator() != Unop.Minus)
+      throw (new RuntimeException("Unknown unary operator"));
     addCode(Interpreter.NOT);
     addCode(Interpreter.LDI, 1);
     addCode(Interpreter.ADD);
@@ -252,7 +254,7 @@ public class CodeGenerationVisitor implements Visitor
       addCode(Interpreter.NOP);
     }
     addCode(Interpreter.LDI);
-    unresolvedLabels.put(program.size()-1, item.getFunctionName());
+    unresolvedLabels.put(program.size() - 1, item.getFunctionName());
     addCode(Interpreter.CALL, item.getArguments().length);
   }
 
@@ -270,7 +272,7 @@ public class CodeGenerationVisitor implements Visitor
   {
     item.getLhs().accept(this);
     item.getRhs().accept(this);
-    switch(item.getOperator())
+    switch (item.getOperator())
     {
       case Or:
         addCode(Interpreter.OR);
@@ -321,7 +323,7 @@ public class CodeGenerationVisitor implements Visitor
   public void visit(UnaryCondition item)
   {
     item.getOperand().accept(this);
-    if(item.getOperator() != Bunop.Not)
+    if (item.getOperator() != Bunop.Not)
       throw new RuntimeException("Unary Operator ist nicht \"not\"");
     addCode(Interpreter.NOT);
   }
@@ -333,8 +335,29 @@ public class CodeGenerationVisitor implements Visitor
   @Override
   public void visit(ArrayInitializer item)
   {
-    item.getExpr().accept(this);
-    addCode(Interpreter.ALLOCH);
+    {
+      addCode(Interpreter.LDI, 0);
+      {
+        //Speichert die Länge in einem Array
+        item.getExpr().accept(this);
+        addCode(Interpreter.LDI, 0);
+        {
+          //Erstellt ein Array der Länge 1
+          addCode(Interpreter.LDI, 1);
+          addCode(Interpreter.ALLOCH);
+        }
+        addCode(Interpreter.STH);
+      }
+      {
+        //Erstellt ein Array der Länge 0
+        //Legt also eigentlich nur eine Referenz zum Array davor oben auf dem Stack
+        addCode(Interpreter.LDI, 0);
+        addCode(Interpreter.ALLOCH);
+      }
+      //Lädt die Länge wieder oben auf den Stack
+      addCode(Interpreter.LDH);
+      addCode(Interpreter.ALLOCH);
+    }
   }
 
   @Override
@@ -354,6 +377,14 @@ public class CodeGenerationVisitor implements Visitor
     addCode(Interpreter.STH);
   }
 
+  @Override
+  public void visit(Length item)
+  {
+    addCode(Interpreter.LDI, -1);
+    item.getExpr().accept(this);
+    addCode(Interpreter.LDH);
+  }
+
   private Integer getVar(String name)
   {
     Integer pos = variables.get(name);
@@ -365,20 +396,19 @@ public class CodeGenerationVisitor implements Visitor
   private void resolveLabels()
   {
     Map<Integer, Integer> resolvedLabels = new HashMap<>();
-    for(Entry<Integer, String> entry : unresolvedLabels.entrySet())
+    for (Entry<Integer, String> entry : unresolvedLabels.entrySet())
     {
       int callLine = entry.getKey();
       try
       {
         int labelLine = labels.get(entry.getValue());
         resolvedLabels.put(callLine, labelLine);
-      }
-      catch (NullPointerException e)
+      } catch (NullPointerException e)
       {
         throw new RuntimeException("label: " + entry.getValue() + " does not exist");
       }
     }
-    for(Entry<Integer, Integer> entry : resolvedLabels.entrySet())
+    for (Entry<Integer, Integer> entry : resolvedLabels.entrySet())
     {
       //Addiere auf Sprungbefehl die Zielzeile hinzu
       int newCode = program.get(entry.getKey()) + entry.getValue();
@@ -389,7 +419,7 @@ public class CodeGenerationVisitor implements Visitor
   private void addCode(int opcode, int constant)
   {
 
-    if(opcode == Interpreter.LDI && (constant >>> 16) != 0)
+    if (opcode == Interpreter.LDI && (constant >>> 16) != 0)
     {
       addCode(Interpreter.LDI, constant >>> 16);
       addCode(Interpreter.SHL, 16);

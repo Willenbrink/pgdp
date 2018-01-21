@@ -320,7 +320,7 @@ public class MiniJavaParser
   {
     String token = program[from++];
     String[] invalidNames = new String[]{"if", "while", "else", "write", "read", "true", "false",
-        "int"};
+        "int", "length"};
     if (Pattern.matches("[a-zA-Z]([a-zA-Z]|\\d)*", token))
     {
       for (String name : invalidNames)
@@ -456,6 +456,19 @@ public class MiniJavaParser
           calls.put(name, expressions.size());
           return new Call(name, expressions.toArray(new Expression[0]));
         }
+      }
+    }
+
+    {
+      from = start;
+      boolean isValid = Pattern.matches("length", program[from++]);
+      isValid = isValid && Pattern.matches("\\(", program[from++]);
+      if(isValid)
+      {
+        Expression expr = parseExpression();
+        isValid = isValid && Pattern.matches("\\)", program[from++]);
+        if(isValid && expr != null)
+          return new Length(expr);
       }
     }
 

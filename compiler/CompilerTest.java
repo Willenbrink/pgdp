@@ -136,6 +136,20 @@ public class CompilerTest {
     int retVal = Interpreter.execute(assembly);
     assertEquals(30, retVal);
   }
+
+  @Test
+  public void testArrayLength2() {
+    String code =
+            "int main() {\n" +
+            "  int[] arr;\n" +
+            "  arr = new int[10];\n" +
+            "  return length(arr);\n" +
+            //"  return 0;" +
+            "}";
+    int[] assembly = Compiler.compile(code);
+    int retVal = Interpreter.execute(assembly);
+    assertEquals(10, retVal);
+  }
   
   @Test
   public void testPalindrome() {

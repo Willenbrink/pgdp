@@ -237,6 +237,14 @@ public class FormatVisitor implements Visitor
   }
 
   @Override
+  public void visit(Length item)
+  {
+    add("length (");
+    item.getExpr().accept(this);
+    add(")");
+  }
+
+  @Override
   public void visit(True item)
   {
     add("true");

@@ -24,6 +24,7 @@ import compiler.nodes.Program;
 import compiler.nodes.Read;
 import compiler.nodes.Return;
 import compiler.nodes.Statement;
+import compiler.nodes.TreeNode;
 import compiler.nodes.True;
 import compiler.nodes.Unary;
 import compiler.nodes.UnaryCondition;
@@ -34,17 +35,16 @@ import compiler.nodes.Write;
 public class FormatVisitor implements Visitor
 {
   //Priorities
-  public static int call = 0; //or any other 0-value statement e.g. array
+  //General
+  public static int top = 0; //anything of top priority
+  public static int negation = 2;
 
   //Binary
-  public static int bool = 0;
-  public static int negation = 2;
   public static int comparison = 3;
   public static int and = 4;
   public static int or = 5;
 
   //Arithmetic
-  public static int number = 0; //or name
   public static int modulo = 1;
   public static int division = 2;
   public static int multiplication = 3;
@@ -53,11 +53,13 @@ public class FormatVisitor implements Visitor
 
   private String result;
   private int depth;
+  private String indentString;
   static final boolean braceOnNextLine = true;
 
   public FormatVisitor()
   {
     result = "";
+    indentString = "  ";
   }
 
   public String getResult()
@@ -371,28 +373,17 @@ public class FormatVisitor implements Visitor
       side.accept(this);
   }
 
-  private void brace(Expression item)
+  private void brace(TreeNode item)
   {
+    //TODO fix?
+    //if(!item instanceof Expression && !item instanceof Condition)
+      //throw new RuntimeException("It doesnt make any sense to call this on a statement");
     add("(");
     item.accept(this);
     add(")");
   }
 
-  private void brace(Condition item)
-  {
-    add("(");
-    item.accept(this);
-    add(")");
-  }
-
-  private void check(Statement side)
-  {
-    depth++;
-    side.accept(this);
-    depth--;
-  }
-
-  private void check(Declaration side)
+  private void check(TreeNode side)
   {
     depth++;
     side.accept(this);
@@ -401,28 +392,30 @@ public class FormatVisitor implements Visitor
 
   private void check(Function side)
   {
+    //TODO remove once Classes are here
     side.accept(this);
   }
 
   private void add(Object... objs)
   {
-    if(depth > 0 && result.charAt(result.length()-1) == '\n')
-      for (int i = 0; i < depth; i++)
-      {
-        result += "  ";
-      }
+    indent();
     for(Object obj : objs)
       result += obj.toString();
   }
 
   private void addSpaced(Object obj)
   {
+    indent();
+    result += " " + obj.toString() + " ";
+  }
+
+  private void indent()
+  {
+    //Rückt ein wenn man sich am Anfang einer Zeile befindet
+    //Annahme: Keine Einrückung in der ersten Zeile
     if(depth > 0 && result.charAt(result.length()-1) == '\n')
       for (int i = 0; i < depth; i++)
-      {
-        result += "  ";
-      }
-    result += " " + obj.toString() + " ";
+        result += indentString;
   }
 
   private void sep()

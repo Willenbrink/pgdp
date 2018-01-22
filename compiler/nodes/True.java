@@ -13,7 +13,7 @@ public class True extends Condition
   @Override
   public int firstLevelPriority()
   {
-    return FormatVisitor.bool;
+    return FormatVisitor.top;
   }
 }
 //UTF-8 Encoded ä

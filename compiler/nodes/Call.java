@@ -32,7 +32,7 @@ public class Call extends Expression
   @Override
   public int firstLevelPriority()
   {
-    return FormatVisitor.call;
+    return FormatVisitor.top;
   }
 
 

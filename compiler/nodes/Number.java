@@ -25,7 +25,7 @@ public class Number extends Expression
   @Override
   public int firstLevelPriority()
   {
-    return FormatVisitor.number;
+    return FormatVisitor.top;
   }
 }
 //UTF-8 Encoded ä

@@ -1,6 +1,6 @@
 package compiler;
 
-public class Declaration
+public class Declaration extends TreeNode
 {
   private String[] names;
 
@@ -11,21 +11,12 @@ public class Declaration
 
   public Declaration(String[] names)
   {
-
     this.names = names;
   }
 
   public void accept(Visitor visitor)
   {
     visitor.visit(this);
-  }
-
-  @Override
-  public String toString()
-  {
-    FormatVisitor visitor = new FormatVisitor();
-    accept(visitor);
-    return visitor.getResult();
   }
 }
 //UTF-8 Encoded ä

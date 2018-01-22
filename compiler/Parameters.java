@@ -1,6 +1,6 @@
 package compiler;
 
-public class Parameters
+public class Parameters extends TreeNode
 {
   private String[] names;
   private Type[] types;
@@ -34,14 +34,6 @@ public class Parameters
   public void accept(Visitor visitor)
   {
     visitor.visit(this);
-  }
-
-  @Override
-  public String toString()
-  {
-    FormatVisitor visitor = new FormatVisitor();
-    accept(visitor);
-    return visitor.getResult();
   }
 }
 //UTF-8 Encoded ä

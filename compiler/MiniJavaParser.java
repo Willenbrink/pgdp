@@ -48,6 +48,7 @@ public class MiniJavaParser
       if (!m.lookingAt())
       {
         System.err.println("From " + i + " on, no token could be found");
+        System.err.println(program.charAt(i));
         break;
       }
       String group = m.group(2);
@@ -96,10 +97,10 @@ public class MiniJavaParser
   {
     Type type = parseType();
     String name = parseName();
-    boolean isValid = Pattern.matches("\\(", program[from++]);
+    boolean isValid = check("\\(");
     Parameters params = parseParameters();
-    isValid = isValid && Pattern.matches("\\)", program[from++])
-        && Pattern.matches("\\{", program[from++]);
+    isValid = isValid && check("\\)", "\\{");
+    //boolean isValid = check("\\{");
     int start = from;
     List<Declaration> decls = new ArrayList<>();
     Declaration decl = parseDecl();
@@ -123,7 +124,7 @@ public class MiniJavaParser
     }
     from = start;
 
-    isValid = isValid && Pattern.matches("}", program[from++]);
+    isValid = isValid && check("}");
     if (isValid)
       return new Function(type, name, params, decls.toArray(new Declaration[0]),
           stmts.toArray(new Statement[0]));
@@ -142,7 +143,7 @@ public class MiniJavaParser
       start = from;
       types.add(type);
       names.add(name);
-      if (!Pattern.matches(",", program[from++]))
+      if (!check(","))
         break;
       type = parseType();
       name = parseName();
@@ -157,7 +158,6 @@ public class MiniJavaParser
     if (type == null)
       return null;
 
-    String token;
     List<String> names = new ArrayList<>();
     String name;
     do
@@ -168,9 +168,9 @@ public class MiniJavaParser
       names.add(name);
       if(program.length <= from)
         return null;
-      token = program[from++];
-    } while (Pattern.matches(",", token));
-    if (Pattern.matches(";", token))
+    } while (check(","));
+    from--;
+    if (check(";"))
       return new Declaration(names.toArray(new String[0]));
     return null;
   }
@@ -182,14 +182,14 @@ public class MiniJavaParser
     //;
     {
       from = start;
-      if (Pattern.matches(";", program[from++]))
+      if (check(";"))
         return new Composite(new Statement[0]);
     }
 
     //{ stmt* }
     {
       from = start;
-      if (Pattern.matches("\\{", program[from++]))
+      if (check("\\{"))
       {
         int beforeStatements = from;
         List<Statement> statements = new ArrayList<>();
@@ -201,7 +201,7 @@ public class MiniJavaParser
           statement = parseStatement();
         }
         from = beforeStatements;
-        if (Pattern.matches("}", program[from++]))
+        if (check("}"))
           return new Composite(statements.toArray(new Statement[0]));
       }
     }
@@ -210,9 +210,9 @@ public class MiniJavaParser
     {
       from = start;
       String name = parseName();
-      boolean isValid = Pattern.matches("=", program[from++]);
+      boolean isValid = check("=");
       Expression expr = parseExpression();
-      isValid = isValid && Pattern.matches(";", program[from++]);
+      isValid = isValid && check(";");
       if (isValid && name != null && expr != null)
         return new Assignment(name, expr);
     }
@@ -221,12 +221,11 @@ public class MiniJavaParser
     {
       from = start;
       String name = parseName();
-      boolean isValid = Pattern.matches("\\[", program[from++]);
+      boolean isValid = check("\\[");
       Expression expr = parseExpression();
-      isValid = isValid && Pattern.matches("\\]", program[from++]);
-      isValid = isValid && Pattern.matches("=", program[from++]);
+      isValid = isValid && check("]", "=");
       Expression expr2 = parseExpression();
-      isValid = isValid && Pattern.matches(";", program[from++]);
+      isValid = isValid && check(";");
       if (isValid && name != null && expr != null && expr2 != null)
         return new ArrayAssignment(name, expr, expr2);
     }
@@ -235,11 +234,7 @@ public class MiniJavaParser
     {
       from = start;
       String name = parseName();
-      boolean isValid = Pattern.matches("=", program[from++]);
-      isValid = isValid && Pattern.matches("read", program[from++])
-          && Pattern.matches("\\(", program[from++])
-          && Pattern.matches("\\)", program[from++])
-          && Pattern.matches(";", program[from++]);
+      boolean isValid = check("=", "read", "\\(", "\\)", ";");
       if (isValid && name != null)
         return new Read(name);
     }
@@ -247,10 +242,9 @@ public class MiniJavaParser
     // write(expr)
     {
       from = start;
-      boolean isValid = Pattern.matches("write", program[from++])
-          && Pattern.matches("\\(", program[from++]);
+      boolean isValid = check("write", "\\(");
       Expression expr = parseExpression();
-      isValid = isValid && Pattern.matches("\\)", program[from++]);
+      isValid = isValid && check("\\)");
       if (isValid && expr != null)
         return new Write(expr);
     }
@@ -258,15 +252,14 @@ public class MiniJavaParser
     //If
     {
       from = start;
-      boolean isValid = Pattern.matches("if", program[from++]);
-      isValid = isValid && Pattern.matches("\\(", program[from++]);
+      boolean isValid = check("if", "\\(");
       Condition cond = parseCondition();
-      isValid = isValid && Pattern.matches("\\)", program[from++]);
+      isValid = isValid && check("\\)");
       if (isValid && cond != null)
       {
         Statement stmt = parseStatement();
         int beforeElse = from;
-        boolean isElse = Pattern.matches("else", program[from++]);
+        boolean isElse = check("else");
         Statement stmt2 = parseStatement();
         if (stmt != null)
         {
@@ -281,10 +274,9 @@ public class MiniJavaParser
     //While
     {
       from = start;
-      boolean isValid = Pattern.matches("while", program[from++])
-          && Pattern.matches("\\(", program[from++]);
+      boolean isValid = check("while", "\\(");
       Condition cond = parseCondition();
-      isValid = isValid && Pattern.matches("\\)", program[from++]);
+      isValid = isValid && check("\\)");
       if (isValid && cond != null)
       {
         Statement stmt = parseStatement();
@@ -296,10 +288,9 @@ public class MiniJavaParser
     //Return
     {
       from = start;
-      boolean isValid = Pattern.matches("return", program[from++]);
+      boolean isValid = check("return");
       Expression expr = parseExpression();
-      isValid = isValid && Pattern.matches(";", program[from++]);
-      if (isValid && expr != null)
+      if (isValid && check(";") && expr != null)
         return new Return(expr);
     }
 
@@ -335,61 +326,64 @@ public class MiniJavaParser
 
   public Type parseType()
   {
-    String token = program[from++];
-
-    if(Pattern.matches("int", token)
-        && Pattern.matches("\\[", program[from++])
-        && Pattern.matches("\\]", program[from++]))
+    int start = from;
+    if(check("int", "\\[", "]"))
       return Type.Array;
-    from--;
-    if (Pattern.matches("int", token))
-    {
+    from = start;
+    if (check("int"))
       return Type.Integer;
-    }
+    from = start;
     return null;
   }
 
   public Unop parseUnop()
   {
-    String token = program[from++];
-    if (Pattern.matches("-", token))
-    {
+    if (check("-"))
       return Unop.Minus;
-    }
+    from--;
     return null;
   }
 
   public Binop parseBinop()
   {
-    String token = program[from++];
-    if (Pattern.matches("[-]", token))
+    if (check("-"))
       return Binop.Minus;
-    if (Pattern.matches("[+]", token))
+    from--;
+    if (check("\\+"))
       return Binop.Plus;
-    if (Pattern.matches("[*]", token))
+    from--;
+    if (check("\\*"))
       return Binop.MultiplicationOperator;
-    if (Pattern.matches("[/]", token))
+    from--;
+    if (check("/"))
       return Binop.DivisionOperator;
-    if (Pattern.matches("[%]", token))
+    from--;
+    if (check("%"))
       return Binop.Modulo;
+    from--;
     return null;
   }
 
   public Comp parseComp()
   {
-    String currentToken = program[from++];
-    if (Pattern.matches("(==)", currentToken))
+    if (check("=="))
       return Comp.Equals;
-    if (Pattern.matches("(!=)", currentToken))
+    from--;
+    if (check("!="))
       return Comp.NotEquals;
-    if (Pattern.matches("(<=)", currentToken))
+    from--;
+    if (check("<="))
       return Comp.LessEqual;
-    if (Pattern.matches("(<)", currentToken))
+    from--;
+    if (check("<"))
       return Comp.Less;
-    if (Pattern.matches("(>=)", currentToken))
+    from--;
+    if (check(">="))
       return Comp.GreaterEqual;
-    if (Pattern.matches("(>)", currentToken))
+    from--;
+    if (check(">"))
       return Comp.Greater;
+    from--;
     return null;
   }
 
@@ -413,15 +407,11 @@ public class MiniJavaParser
     //expr [ expr ]
     {
       Expression expr = parseBasicExpression();
-      boolean isValid = Pattern.matches("\\[", program[from++]);
-      if(isValid && expr != null)
+      if(check("\\[") && expr != null)
       {
         Expression expr2 = parseExpression();
-        isValid = Pattern.matches("\\]", program[from++]);
-        if (isValid && expr2 != null)
-        {
+        if (check("]") && expr2 != null)
           return new ArrayAccess(expr, expr2);
-        }
       }
       from = start;
     }
@@ -437,7 +427,7 @@ public class MiniJavaParser
     {
       from = start;
       String name = parseName();
-      if (Pattern.matches("\\(", program[from++]))
+      if (check("\\("))
       {
         int beforeExpressions = from;
         List<Expression> expressions = new ArrayList<>();
@@ -446,12 +436,12 @@ public class MiniJavaParser
         {
           beforeExpressions = from;
           expressions.add(expr);
-          if (!Pattern.matches(",", program[from++]))
+          if (!check(","))
             break;
           expr = parseExpression();
         }
         from = beforeExpressions;
-        if (name != null && Pattern.matches("\\)", program[from++]))
+        if (name != null && check("\\)"))
         {
           calls.put(name, expressions.size());
           return new Call(name, expressions.toArray(new Expression[0]));
@@ -461,13 +451,10 @@ public class MiniJavaParser
 
     {
       from = start;
-      boolean isValid = Pattern.matches("length", program[from++]);
-      isValid = isValid && Pattern.matches("\\(", program[from++]);
-      if(isValid)
+      if(check("length", "\\("))
       {
         Expression expr = parseExpression();
-        isValid = isValid && Pattern.matches("\\)", program[from++]);
-        if(isValid && expr != null)
+        if(check("\\)") && expr != null)
           return new Length(expr);
       }
     }
@@ -475,14 +462,10 @@ public class MiniJavaParser
     //new int [ expr ]
     {
       from = start;
-      boolean isValid = Pattern.matches("new", program[from++]);
-      isValid = isValid && Pattern.matches("int", program[from++]);
-      isValid = isValid && Pattern.matches("\\[", program[from++]);
-      if(isValid)
+      if(check("new", "int", "\\["))
       {
         Expression expr = parseExpression();
-        isValid = isValid && Pattern.matches("\\]", program[from++]);
-        if(isValid && expr != null)
+        if(check("]") && expr != null)
           return new ArrayInitializer(expr);
       }
     }
@@ -490,10 +473,10 @@ public class MiniJavaParser
     //(expr)
     {
       from = start;
-      if (Pattern.matches("\\(", program[from++]))
+      if (check("\\("))
       {
         Expression expr = parseExpression();
-        if (Pattern.matches("\\)", program[from++]))
+        if (check("\\)"))
           return expr;
       }
     }
@@ -533,19 +516,20 @@ public class MiniJavaParser
 
   public Bbinop parseBbinop()
   {
-    String currentToken = program[from++];
-    if (Pattern.matches("(&&)", currentToken))
+    if (check("&&"))
       return Bbinop.And;
-    if (Pattern.matches("(\\|\\|)", currentToken))
+    from--;
+    if (check("\\|\\|"))
       return Bbinop.Or;
+    from--;
     return null;
   }
 
   public Bunop parseBunop()
   {
-    String currentToken = program[from++];
-    if (Pattern.matches("!", currentToken))
+    if (check("!"))
       return Bunop.Not;
+    from--;
     return null;
   }
 
@@ -588,12 +572,10 @@ public class MiniJavaParser
     {
       from = start;
       Bunop bunop = parseBunop();
-      boolean brace = Pattern.matches("\\(", program[from++]);
-      if (brace)
+      if (check("\\("))
       {
         Condition cond = parseCondition();
-        brace = Pattern.matches("\\)", program[from++]);
-        if (bunop != null && brace && cond != null)
+        if (bunop != null && check("\\)") && cond != null)
           return new UnaryCondition(bunop, cond);
       }
     }
@@ -601,11 +583,11 @@ public class MiniJavaParser
     //(cond)
     {
       from = start;
-      boolean brace = Pattern.matches("\\(", program[from++]);
+      boolean brace = check("\\(");
       if (brace)
       {
         Condition cond = parseCondition();
-        brace = Pattern.matches("\\)", program[from++]);
+        brace = check("\\)");
         if (brace && cond != null)
           return cond;
       }
@@ -614,20 +596,30 @@ public class MiniJavaParser
     //true
     {
       from = start;
-      if (Pattern.matches("true", program[from++]))
+      if (check("true"))
         return new True();
     }
 
     //false
     {
       from = start;
-      if (Pattern.matches("false", program[from++]))
+      if (check("false"))
         return new False();
     }
 
     //Invalid Condition
     from = start;
     return null;
+  }
+
+  private boolean check(String... regexes)
+  {
+    boolean isValid = true;
+    for (String regex : regexes)
+    {
+      isValid = isValid && Pattern.matches(regex, program[from++]);
+    }
+    return isValid;
   }
 }//UTF-8 Encoded ä
 //UTF-8 ä Ich mach es tatsächlich per Commandline und in jedem Dokument... mit echo TEXT | tee -a `ls | grep .java` MIT EINZELNEN ANFÜHRUNGSZEICHEN, das macht ansonsten alles kaputt...

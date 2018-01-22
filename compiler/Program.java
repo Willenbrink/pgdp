@@ -1,6 +1,6 @@
 package compiler;
 
-public class Program
+public class Program extends TreeNode
 {
   private Function[] functions;
 
@@ -18,14 +18,6 @@ public class Program
   public void accept(Visitor visitor)
   {
     visitor.visit(this);
-  }
-
-  @Override
-  public String toString()
-  {
-    FormatVisitor visitor = new FormatVisitor();
-    accept(visitor);
-    return visitor.getResult();
   }
 }
 //UTF-8 Encoded ä

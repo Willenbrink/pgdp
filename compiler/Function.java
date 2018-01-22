@@ -1,6 +1,6 @@
 package compiler;
 
-public class Function
+public class Function extends TreeNode
 {
   private Type type;
   private String name;
@@ -43,27 +43,9 @@ public class Function
     this.statements = statements;
   }
 
-  public Function(String name, String[] params, Declaration[] declarations,
-      Statement[] statements)
-  {
-    type = Type.Integer;
-    this.name = name;
-    this.params = new Parameters(new Type[params.length], params);
-    this.declarations = declarations;
-    this.statements = statements;
-  }
-
   public void accept(Visitor visitor)
   {
     visitor.visit(this);
-  }
-
-  @Override
-  public String toString()
-  {
-    FormatVisitor visitor = new FormatVisitor();
-    accept(visitor);
-    return visitor.getResult();
   }
 }
 //UTF-8 Encoded ä

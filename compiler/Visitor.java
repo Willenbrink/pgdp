@@ -1,5 +1,33 @@
 package compiler;
 
+import compiler.nodes.ArrayAccess;
+import compiler.nodes.ArrayAssignment;
+import compiler.nodes.ArrayInitializer;
+import compiler.nodes.Assignment;
+import compiler.nodes.Binary;
+import compiler.nodes.BinaryCondition;
+import compiler.nodes.Call;
+import compiler.nodes.Comparison;
+import compiler.nodes.Composite;
+import compiler.nodes.Declaration;
+import compiler.nodes.Empty;
+import compiler.nodes.False;
+import compiler.nodes.Function;
+import compiler.nodes.IfThen;
+import compiler.nodes.IfThenElse;
+import compiler.nodes.Length;
+import compiler.nodes.Number;
+import compiler.nodes.Parameters;
+import compiler.nodes.Program;
+import compiler.nodes.Read;
+import compiler.nodes.Return;
+import compiler.nodes.True;
+import compiler.nodes.Unary;
+import compiler.nodes.UnaryCondition;
+import compiler.nodes.Variable;
+import compiler.nodes.While;
+import compiler.nodes.Write;
+
 public interface Visitor
 {
   void visit(Program item);

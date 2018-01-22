@@ -2,6 +2,26 @@ package compiler;
 
 import static org.junit.Assert.assertEquals;
 
+import compiler.nodes.ArrayAccess;
+import compiler.nodes.ArrayInitializer;
+import compiler.nodes.Bbinop;
+import compiler.nodes.Binary;
+import compiler.nodes.BinaryCondition;
+import compiler.nodes.Binop;
+import compiler.nodes.Bunop;
+import compiler.nodes.Call;
+import compiler.nodes.Comp;
+import compiler.nodes.Comparison;
+import compiler.nodes.Condition;
+import compiler.nodes.Expression;
+import compiler.nodes.False;
+import compiler.nodes.Number;
+import compiler.nodes.Program;
+import compiler.nodes.True;
+import compiler.nodes.Unary;
+import compiler.nodes.UnaryCondition;
+import compiler.nodes.Unop;
+import compiler.nodes.Variable;
 import org.junit.Test;
 
 public class FormatTest {

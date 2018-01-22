@@ -1,5 +1,7 @@
 package compiler;
 
+import compiler.nodes.Program;
+
 public class Compiler
 {
   public static int[] compile(String code)

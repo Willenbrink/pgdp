@@ -20,7 +20,7 @@ public class MapGraph
   private BinomialHeap<HeapElement> vermutet = new BinomialHeap<>();
   private Map<Long, BinomialHeapHandle> handles = new HashMap<>();
 
-  private final boolean dijkstra = false;
+  private final boolean dijkstra = true;
 
   public MapGraph()
   {

@@ -1,16 +1,24 @@
+package paralleluine;
 /*************************************************/
 /* In dieser Klasse soll nichts geändert werden. */
 /*************************************************/
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.event.*;
-import java.io.File;
-import javax.imageio.ImageIO;
 
 public class GUI extends JPanel {
   /******************************************************************/

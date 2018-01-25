@@ -88,7 +88,7 @@ public class Suchtbaum<T extends Comparable<T>>
     try
     {
       lock.startWrite();
-      Thread.sleep(5);
+      Thread.sleep(50);
       insertWrapped(element);
       lock.endWrite();
     }
@@ -138,10 +138,17 @@ public class Suchtbaum<T extends Comparable<T>>
 
   public boolean contains(T element) throws InterruptedException
   {
-    lock.startRead();
-    boolean result = containsWrapped(element);
-    lock.endRead();
-    return result;
+    try{
+      lock.startRead();
+      Thread.sleep(500);
+      boolean result = containsWrapped(element);
+      lock.endRead();
+      return result;
+    }
+    catch(Exception e)
+    {
+      throw new RuntimeException("Blubb");
+    }
   }
 
   private boolean containsWrapped(T element)
@@ -172,7 +179,7 @@ public class Suchtbaum<T extends Comparable<T>>
     try
     {
       lock.startWrite();
-      Thread.sleep(5);
+      Thread.sleep(50);
       removeWrapped(element);
       lock.endWrite();
     }

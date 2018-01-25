@@ -1,5 +1,7 @@
+package paralleluine;
 
-public class Colony extends GUI {
+public class Colony extends GUI
+{
 
   private final int[][] landscape;
   private final Penguin[][] placed;

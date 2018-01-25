@@ -1,3 +1,4 @@
+package paralleluine;
 /*************************************************/
 /* In dieser Klasse soll nichts geändert werden. */
 /*************************************************/

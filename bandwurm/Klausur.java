@@ -1,4 +1,4 @@
-package korrektur;
+package bandwurm;
 
 import java.util.Random;
 

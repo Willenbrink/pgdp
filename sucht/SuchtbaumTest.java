@@ -39,31 +39,28 @@ public class SuchtbaumTest
         {
           int rand;
           count++;
-          if (state <= 5)
+          if (state <= 0)
           {
             String result = baumi.toString();
-            //Kommentiert wegen extremen Ausgabeumfang
-            log("Treepart: " + result.split("\n")[(int) (Math.random() * result
-                .split("\n").length)]);
+            log("read");
+          }
+          else if (state <= 60)
+          {
+            rand = (int) (Math.random() * 1000);
+            baumi.contains(rand);
+            log("read");
           }
           else if (state <= 80)
           {
             rand = (int) (Math.random() * 1000);
-            if (baumi.contains(rand))
-              log(rand + " contained");
-          }
-          else if (state <= 98)
-          {
-            rand = (int) (Math.random() * 1000);
             baumi.insert(rand);
-            log("-> " + rand);
+            log("write ->");
           }
           else if (state <= 100)
           {
             rand = (int) (Math.random() * 1000);
-            if (baumi.contains(rand))
-              log("<- " + rand);
             baumi.remove(rand);
+            log("write <-");
           }
           Thread.sleep(delay);
           state = (int) (Math.random() * 100);
@@ -79,9 +76,9 @@ public class SuchtbaumTest
 
   private void log(String input)
   {
-    System.out.print(".");
-    //System.out.print("Time " + (System.currentTimeMillis() - startTime) + ": ");
-    //System.out.println(input);
+    //System.out.print(".");
+    System.out.print("Time " + (System.currentTimeMillis() - startTime) + ": ");
+    System.out.println(input);
   }
 
   @Test
@@ -91,8 +88,7 @@ public class SuchtbaumTest
     Suchtbaum<Integer> suchti = new Suchtbaum<>();
     for (int i = 0; i < n; i++)
     {
-      int delay = (int) (Math.random() * 1000);
-      delay = 1000;
+      int delay = (int) (Math.random() * 10000);
       Runner runner = new Runner(suchti, i, delay);
       new Thread(runner).start();
     }
@@ -100,7 +96,7 @@ public class SuchtbaumTest
     {
       System.out.println(count + " active");
       count = 0;
-      Thread.sleep(1000);
+      Thread.sleep(10000);
     }
   }
 

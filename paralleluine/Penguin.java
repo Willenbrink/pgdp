@@ -1,3 +1,4 @@
+package paralleluine;
 
 public class Penguin implements Runnable {
 

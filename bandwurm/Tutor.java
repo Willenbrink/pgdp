@@ -43,7 +43,7 @@ public class Tutor extends Thread
     }
     klausur.setPunkte(pos,
         Korrekturschema.punkte(pos + 1, klausur.getAntwort(pos)));
-    log("Aufgabe aus " + pos + " wurde korrigiert");
+    log("Aufgabe " + (pos+1) + " wurde korrigiert");
   }
 
   private void zählen(Klausur klausur)

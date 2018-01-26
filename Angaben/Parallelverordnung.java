@@ -1,4 +1,3 @@
-import java.util.Arrays;
 
 public class Parallelverordnung implements Runnable {
   private int[] numbers;
@@ -13,6 +12,17 @@ public class Parallelverordnung implements Runnable {
     int[] numbers = readArray();
     
     // Todo
+    
+  }
+
+  private static int[] readArray() {
+    // Todo
+    return null;
+  }
+
+  @Override
+  public void run() {
+    // TODO Auto-generated method stub
     
   }
 } // Ende der Klasse Parallelverordnung

@@ -5,6 +5,50 @@ import interpreter.Interpreter;
 
 public class CompilerTest {
   @Test
+  public void testObjectArray() {
+    String code = 
+        "class Foo {\n" + 
+        "  int a;\n" + 
+        "\n" + 
+        "  Foo(int x) {\n" + 
+        "    a = x;\n" + 
+        "  }\n" + 
+        "\n" + 
+        "  int getA() {\n" + 
+        "    return a;\n" + 
+        "  }\n" + 
+        "}\n" + 
+        "\n" + 
+        "int main() {\n" + 
+        "  Foo[] foos;\n" + 
+        "  Foo foo;\n" + 
+        "  int sum, i;\n" + 
+        "  foos = new Foo[5];\n" + 
+        "  i = 0;\n" + 
+        "  while(i < length(foos)) {\n" + 
+        "    foos[i] = new Foo(2*i + 1);\n" + 
+        "    i = i + 1;\n" + 
+        "  }\n" + 
+        "  i = length(foos);\n" + 
+        "  sum = 0;\n" + 
+        "  while(i > 0) {\n" + 
+        "    foo = foos[i - 1];\n" + 
+        "    sum = sum + foo.getA();\n" + 
+        "    i = i - 1;\n" + 
+        "  }\n" + 
+        "  return sum;\n" + 
+        "}";
+//    Parser p = new Parser(code);
+//    Program ast = p.parse();
+//    System.out.println(ast);
+    int[] assembly = Compiler.compile(code);
+//    System.out.println("######################");
+//    System.out.println(Interpreter.programToString(assembly));
+    int retVal = Interpreter.execute(assembly);
+    assertEquals(25, retVal);
+  }
+  
+  @Test
   public void testVisitor() {
     String code = 
         "class Grundflaeche {\n" + 
@@ -306,11 +350,11 @@ public class CompilerTest {
   public void testInheritance2() {
     String code = 
         "class Bar {\n" + 
-        "  int x() {\n" + 
-        "    return 22;\n" + 
+        "  Bar() {\n" + 
         "  }\n" + 
         "\n" + 
-        "  Bar() {\n" + 
+        "  int x() {\n" + 
+        "    return 22;\n" + 
         "  }\n" + 
         "}\n" + 
         "\n" + 

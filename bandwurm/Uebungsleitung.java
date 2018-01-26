@@ -2,7 +2,7 @@ package bandwurm;
 
 public class Uebungsleitung extends Tutor
 {
-  String besteAntworten = "bcaabddc";
+  private String besteAntworten = "bcaabddc";
 
   public Uebungsleitung()
   {

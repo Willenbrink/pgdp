@@ -15,18 +15,11 @@ public class SuchtbaumTest
   private class Runner implements Runnable
   {
     Suchtbaum baumi;
-
-    //States are:
-    //0: reading
-    //1: adding
-    //2: removing
-    int state;
     int delay;
 
-    private Runner(Suchtbaum suchti, int state, int ms)
+    private Runner(Suchtbaum suchti, int ms)
     {
       baumi = suchti;
-      this.state = state;
       delay = ms;
     }
 
@@ -39,7 +32,8 @@ public class SuchtbaumTest
         {
           int rand;
           count++;
-          if (state <= 0)
+          int state = (int) (Math.random() * 100);
+          if (state <= 20)
           {
             String result = baumi.toString();
             log("read");
@@ -63,12 +57,10 @@ public class SuchtbaumTest
             log("write <-");
           }
           Thread.sleep(delay);
-          state = (int) (Math.random() * 100);
         }
         catch (InterruptedException e)
         {
           e.printStackTrace();
-          //break;
         }
       }
     }
@@ -76,7 +68,6 @@ public class SuchtbaumTest
 
   private void log(String input)
   {
-    //System.out.print(".");
     System.out.print("Time " + (System.currentTimeMillis() - startTime) + ": ");
     System.out.println(input);
   }
@@ -84,19 +75,22 @@ public class SuchtbaumTest
   @Test
   public void testThreaded() throws InterruptedException
   {
+    //Amount of threads
     int n = 100;
+    int sleepDuration = 10000;
     Suchtbaum<Integer> suchti = new Suchtbaum<>();
+
     for (int i = 0; i < n; i++)
     {
-      int delay = (int) (Math.random() * 10000);
-      Runner runner = new Runner(suchti, i, delay);
+      int delay = (int) (Math.random() * sleepDuration);
+      Runner runner = new Runner(suchti, delay);
       new Thread(runner).start();
     }
     while (true)
     {
-      System.out.println(count + " active");
+      System.out.println(count + " active in the last " + sleepDuration + "ms");
       count = 0;
-      Thread.sleep(10000);
+      Thread.sleep(sleepDuration);
     }
   }
 

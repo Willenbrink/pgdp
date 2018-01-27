@@ -8,7 +8,8 @@ public class Tutor extends Thread
 
   public Tutor(int pos, boolean zählen)
   {
-    //TODO check pos
+    if(pos < 0 || pos > 9)
+      throw new RuntimeException("Invalide Tutorposition");
     this.zählen = zählen;
     this.pos = pos;
   }
@@ -37,13 +38,19 @@ public class Tutor extends Thread
   {
     try
     {
-      Thread.sleep(10);
+      Thread.sleep(100);
     } catch (Exception e)
     {
     }
     klausur.setPunkte(pos,
         Korrekturschema.punkte(pos + 1, klausur.getAntwort(pos)));
-    log("Aufgabe " + (pos+1) + " wurde korrigiert");
+
+    int punkte = 0;
+    for (int punkt : klausur.getPunkte())
+    {
+      punkte += punkt;
+    }
+    log("Aufgabe " + (pos+1) + " wurde korrigiert, hat Punkte: " + punkte);
   }
 
   private void zählen(Klausur klausur)
@@ -54,6 +61,7 @@ public class Tutor extends Thread
       punkte += punkt;
     }
     klausur.setGesamtpunktzahl(punkte);
+    klausur.setNote(Korrekturschema.note(punkte));
     log(klausur.toString());
   }
 

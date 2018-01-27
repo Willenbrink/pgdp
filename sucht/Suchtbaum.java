@@ -78,6 +78,7 @@ public class Suchtbaum<T extends Comparable<T>>
 
   public Suchtbaum()
   {
+    root = null;
     lock = new RWLock();
   }
 
@@ -85,14 +86,17 @@ public class Suchtbaum<T extends Comparable<T>>
   // gelöst werden müsste, deswegen eigene Wrappermethode, die das übernehmen
   public void insert(T element) throws InterruptedException
   {
+    lock.startWrite();
     try
     {
-      lock.startWrite();
-      Thread.sleep(50);
+      //Thread.sleep(50);
       insertWrapped(element);
-      lock.endWrite();
     }
     catch (RuntimeException e)
+    {
+      e.printStackTrace();
+    }
+    finally
     {
       lock.endWrite();
     }
@@ -106,7 +110,12 @@ public class Suchtbaum<T extends Comparable<T>>
       return;
     }
 
-    if (containsWrapped(element))
+    //TODO Sehr seltsame Dinge passieren wenn man hier im Debugmode durchstepped, dabei hängt sich die VM auf
+    // und terminiert nicht mehr, das Problem scheint irgendwo bei der Exception zu liegen
+    // es am Stück laufen zu lassen produziert aber keinen Fehler
+    // Seltsamerweise sind das nur Operationen während der Thread noch das Lock hat und nicht weggibt
+    boolean throwException = containsWrapped(element);
+    if (throwException)
       throw new RuntimeException("Element bereits enthalten");
 
     SuchtbaumElement walk = root;
@@ -140,7 +149,7 @@ public class Suchtbaum<T extends Comparable<T>>
   {
     try{
       lock.startRead();
-      Thread.sleep(500);
+      //Thread.sleep(500);
       boolean result = containsWrapped(element);
       lock.endRead();
       return result;
@@ -179,7 +188,7 @@ public class Suchtbaum<T extends Comparable<T>>
     try
     {
       lock.startWrite();
-      Thread.sleep(50);
+      //Thread.sleep(50);
       removeWrapped(element);
       lock.endWrite();
     }
@@ -203,6 +212,7 @@ public class Suchtbaum<T extends Comparable<T>>
       int comp = element.compareTo(walk.getElement());
       if (comp == 0)
       {
+        //Keine Nachfolger
         if (walk.getLeft() == null && walk.getRight() == null)
         {
           if (walk == root)
@@ -214,6 +224,7 @@ public class Suchtbaum<T extends Comparable<T>>
           return;
         }
 
+        //Zwei Nachfolger
         if (walk.getLeft() != null && walk.getRight() != null)
         {
           SuchtbaumElement largest = getLargest(walk.getLeft());
@@ -224,6 +235,7 @@ public class Suchtbaum<T extends Comparable<T>>
           return;
         }
 
+        //Ein Nachfolger
         //XOR der Nachfolger, einer von beiden nicht null
         {
           if (walk.getLeft() != null)

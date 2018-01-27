@@ -72,7 +72,7 @@ public class SuchtbaumTest
     System.out.println(input);
   }
 
-  @Test
+  //@Test
   public void testThreaded() throws InterruptedException
   {
     //Amount of threads
@@ -92,6 +92,17 @@ public class SuchtbaumTest
       count = 0;
       Thread.sleep(sleepDuration);
     }
+  }
+
+  @Test
+  public void testDoubleValue() throws InterruptedException
+  {
+    Suchtbaum<Integer> suchti = new Suchtbaum<>();
+    suchti.insert(10);
+    suchti.insert(10);
+    suchti.insert(10);
+    suchti.remove(10);
+    assertEquals(false, suchti.contains(10));
   }
 
   @Test

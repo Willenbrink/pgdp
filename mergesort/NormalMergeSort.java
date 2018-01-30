@@ -1,3 +1,5 @@
+package mergesort;
+
 public class NormalMergeSort {
   public static void mergeSort(int[] arr) {
     mergeSort(arr, 0, arr.length - 1);
@@ -37,5 +39,10 @@ public class NormalMergeSort {
     for (i = 0; i < SIZE; i++) {
       arr[low + i] = helperArr[i];
     }
+  }
+
+  public static void mergePublic(int[] arr, int low, int mid, int high)
+  {
+    merge(arr, low, mid, high);
   }
 }

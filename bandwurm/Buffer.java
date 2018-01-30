@@ -1,7 +1,6 @@
 package bandwurm;
 
 import java.util.LinkedList;
-import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class Buffer
@@ -10,7 +9,7 @@ public class Buffer
   Semaphore sema;
 
 
-  public Buffer(int amount)
+  public Buffer (int amount)
   {
     klausuren = new LinkedList<>();
     sema = new Semaphore(amount);

@@ -2,8 +2,12 @@ package sucht;
 
 public class Suchtbaum<T extends Comparable<T>>
 {
+  //TODO implement "Hauptprogramm"
+  //TODO check whether this lock is allowed
+
   private class SuchtbaumElement
   {
+    //SetElement nicht möglich, da der Baum dann nicht mehr sortiert wäre
     private T element;
     private SuchtbaumElement left = null;
     private SuchtbaumElement right = null;
@@ -16,11 +20,6 @@ public class Suchtbaum<T extends Comparable<T>>
     public T getElement()
     {
       return element;
-    }
-
-    public void setElement(T element)
-    {
-      this.element = element;
     }
 
     public SuchtbaumElement getLeft()
@@ -46,13 +45,8 @@ public class Suchtbaum<T extends Comparable<T>>
     @Override
     public String toString()
     {
-      //TODO
-      //In der Angabe haben nur die label=left ein Semikolon
-      //Ich bin mir nicht sicher ob das Absicht ist, jedoch wurde
-      //es hier einfach übernommen
-
       String result = element.toString() + ";\n";
-      if(left != null)
+      if (left != null)
       {
         result += element.toString()
             + " -> "
@@ -61,12 +55,12 @@ public class Suchtbaum<T extends Comparable<T>>
         result += left.toString();
       }
 
-      if(right != null)
+      if (right != null)
       {
         result += element.toString()
             + " -> "
             + right.getElement().toString()
-            + " [label=right]\n";
+            + " [label=right];\n";
         result += right.toString();
       }
       return result;
@@ -75,28 +69,70 @@ public class Suchtbaum<T extends Comparable<T>>
 
   private SuchtbaumElement root;
   private RWLock lock;
+  //Whether there should be a delay during any synchronized Operation
+  //The delay helps by increasing the duration of an access
+  private final boolean delay;
 
   public Suchtbaum()
   {
     root = null;
     lock = new RWLock();
+    delay = false;
   }
 
-  //Etwas unpraktisches Design, da bei jedem return davor das Lock
-  // gelöst werden müsste, deswegen eigene Wrappermethode, die das übernehmen
+  public Suchtbaum(boolean delayed)
+  {
+    root = null;
+    lock = new RWLock();
+    delay = delayed;
+  }
+
+  /*
+  Wrappermethoden um die Synchronisierung von der eigentlich Implementation
+  zu trennen, wegen der Vorgabe wurden die Wrappermethoden nicht umbenannt,
+  die gewrapped Methoden aber schon
+
+  Synchronisationsblock
+   */
+  public boolean contains(T element) throws InterruptedException
+  {
+    lock.startRead();
+    if (delay)
+      Thread.sleep(50);
+    boolean result = containsWrapped(element);
+    lock.endRead();
+    return result;
+  }
+
   public void insert(T element) throws InterruptedException
   {
     lock.startWrite();
     try
     {
-      //Thread.sleep(50);
+      if (delay)
+        Thread.sleep(50);
       insertWrapped(element);
-    }
-    catch (RuntimeException e)
+    } catch (RuntimeException e)
     {
       e.printStackTrace();
+    } finally
+    {
+      lock.endWrite();
     }
-    finally
+  }
+
+  public void remove(T element) throws InterruptedException
+  {
+    lock.startWrite();
+    try
+    {
+      if (delay)
+        Thread.sleep(50);
+      removeWrapped(element);
+    } catch (RuntimeException e)
+    {
+      e.printStackTrace();
+    } finally
     {
       lock.endWrite();
     }
@@ -110,14 +146,30 @@ public class Suchtbaum<T extends Comparable<T>>
       return;
     }
 
-    //TODO Sehr seltsame Dinge passieren wenn man hier im Debugmode durchstepped, dabei hängt sich die VM auf
+    //Sehr seltsame Dinge passieren wenn man hier im Debugmode durchstepped, dabei hängt sich die VM auf
     // und terminiert nicht mehr, das Problem scheint irgendwo bei der Exception zu liegen
     // es am Stück laufen zu lassen produziert aber keinen Fehler
     // Seltsamerweise sind das nur Operationen während der Thread noch das Lock hat und nicht weggibt
+    //Leider habe ich dafür keine Lösung gefunden
+    //Beschreibung:
+    // 1. Breakpoint bei throwException = ...; setzen
+    // 1.1 Der Breakpoint kann tatsächlich irgendwo innerhalb der nächsten 3 Zeilen
+    //     gesetzt werden und es hängt sich trotzdem auf
+    // 2. F7 um einen Schritt zu machen
+    // 3. Terminiert nicht, beenden der VM funktioniert nicht auf Anhieb
+    //    der Prozess muss gekillt werden
     boolean throwException = containsWrapped(element);
     if (throwException)
+    {
       throw new RuntimeException("Element bereits enthalten");
+    }
 
+    //Es wird von root aus der Baum nach unten gewandert bis
+    // wir auf einen Knoten treffen der keinen Nachfolger hat, an diesen wird
+    // dann das Element angehängt
+    // falls root == null wurde es bereits vorher abgefangen
+    //Seltsamerweise, wenn man einen Breakpoint mit Bedingung root==null setzt
+    // wird der Code um ca. 1000x langsamer
     SuchtbaumElement walk = root;
     while (true)
     {
@@ -129,34 +181,19 @@ public class Suchtbaum<T extends Comparable<T>>
           walk.setLeft(new SuchtbaumElement(element));
           return;
         }
-        walk = walk.getLeft();
-        continue;
+        else
+          walk = walk.getLeft();
       }
-      if (comp > 0)
+      else //comp > 0, comp == 0 kann nicht sein
       {
         if (walk.getRight() == null)
         {
           walk.setRight(new SuchtbaumElement(element));
           return;
         }
-        walk = walk.getRight();
-        continue;
+        else
+          walk = walk.getRight();
       }
-    }
-  }
-
-  public boolean contains(T element) throws InterruptedException
-  {
-    try{
-      lock.startRead();
-      //Thread.sleep(500);
-      boolean result = containsWrapped(element);
-      lock.endRead();
-      return result;
-    }
-    catch(Exception e)
-    {
-      throw new RuntimeException("Blubb");
     }
   }
 
@@ -167,6 +204,8 @@ public class Suchtbaum<T extends Comparable<T>>
     SuchtbaumElement walk = root;
     while (true)
     {
+      //Selbes Konzept wie vorher, Baum entlangwandern bis man das richtige Element
+      // findet oder am Ende ankommt
       int comp = element.compareTo(walk.getElement());
       if (comp == 0)
         return true;
@@ -175,26 +214,13 @@ public class Suchtbaum<T extends Comparable<T>>
         if (walk.getLeft() == null)
           return false;
         walk = walk.getLeft();
-        continue;
       }
-      if (walk.getRight() == null)
-        return false;
-      walk = walk.getRight();
-    }
-  }
-
-  public void remove(T element) throws InterruptedException
-  {
-    try
-    {
-      lock.startWrite();
-      //Thread.sleep(50);
-      removeWrapped(element);
-      lock.endWrite();
-    }
-    catch (RuntimeException e)
-    {
-      lock.endWrite();
+      else
+      {
+        if (walk.getRight() == null)
+          return false;
+        walk = walk.getRight();
+      }
     }
   }
 
@@ -204,68 +230,61 @@ public class Suchtbaum<T extends Comparable<T>>
       throw new RuntimeException("Element nicht enthalten");
     //Root kann nicht null sein, da ansonsten die Exception bereits geworfen
     //worden wäre
-    SuchtbaumElement parent = root;
-    boolean left = true;
+    SuchtbaumElement parent = null;
+    boolean walkedLeft = true;
     SuchtbaumElement walk = root;
     while (true)
     {
       int comp = element.compareTo(walk.getElement());
       if (comp == 0)
       {
+        boolean left = walk.getLeft() != null, right = walk.getRight() != null;
+
         //Keine Nachfolger
-        if (walk.getLeft() == null && walk.getRight() == null)
+        if (!left && !right)
         {
-          if (walk == root)
-          {
-            root = null;
-            return;
-          }
-          setParent(parent, left, null);
-          return;
+          setParent(parent, walkedLeft, null);
         }
 
         //Zwei Nachfolger
-        if (walk.getLeft() != null && walk.getRight() != null)
+        else if (left && right)
         {
           SuchtbaumElement largest = getLargest(walk.getLeft());
           removeWrapped(largest.getElement());
           largest.setLeft(walk.getLeft());
           largest.setRight(walk.getRight());
-          setParent(parent, left, largest);
-          return;
+          setParent(parent, walkedLeft, largest);
         }
 
         //Ein Nachfolger
         //XOR der Nachfolger, einer von beiden nicht null
+        else
         {
           if (walk.getLeft() != null)
           {
-            setParent(parent, left, walk.getLeft());
+            setParent(parent, walkedLeft, walk.getLeft());
             walk.setLeft(null);
-            return;
           }
-          if (walk.getRight() != null)
+
+          else if (walk.getRight() != null)
           {
-            setParent(parent, left, walk.getRight());
+            setParent(parent, walkedLeft, walk.getRight());
             walk.setRight(null);
-            return;
           }
         }
+        break;
       }
-
-      //Hier wird bewusst auf die Überprüfung der Existenz verzichtet
-      // da das Element enthalten sein muss
-      if (comp < 0)
+      else if (comp < 0)
       {
         parent = walk;
-        left = true;
+        walkedLeft = true;
         walk = walk.getLeft();
         continue;
       }
-      if (comp > 0)
+      else //comp > 0
       {
         parent = walk;
-        left = false;
+        walkedLeft = false;
         walk = walk.getRight();
         continue;
       }
@@ -275,34 +294,38 @@ public class Suchtbaum<T extends Comparable<T>>
   @Override
   public String toString()
   {
+    String result = "digraph G {\n";
+
     try
     {
       lock.startRead();
-      String result = "digraph G {\n";
       if (root != null)
         result += root.toString();
-      result += "}";
       lock.endRead();
-      return result;
     }
     catch (InterruptedException e)
     {
-      //TODO Was mach ich jetzt damit?
-      return "";
+      result += "Interrupted";
     }
+    result += "}";
+    return result;
   }
 
   private SuchtbaumElement getLargest(SuchtbaumElement start)
   {
     SuchtbaumElement walk = start;
-    while(walk.getRight() != null)
+    while (walk.getRight() != null)
+    {
       walk = walk.getRight();
+    }
     return walk;
   }
 
   private void setParent(SuchtbaumElement parent, boolean left, SuchtbaumElement element)
   {
-    if (left)
+    if (parent == null)
+      root = element;
+    else if (left)
       parent.setLeft(element);
     else
       parent.setRight(element);

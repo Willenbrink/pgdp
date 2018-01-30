@@ -15,7 +15,7 @@ public class Penguin implements Runnable
   private int x, y;
   private int age;
   private Colony colony;
-  private boolean brutus;
+  private boolean amBrüten;
   private boolean wurdeGezwungen;
   private boolean stop;
 
@@ -40,12 +40,12 @@ public class Penguin implements Runnable
       {
         if(wurdeGezwungen)
         {
-          brutussen();
+          mannuinBrüten();
           wurdeGezwungen = false;
         }
-        adBrutensis();
+        brütuininTry();
         move();
-        adSchlupfensis();
+        amSchlüpfen();
         aging();
         warten();
       }
@@ -56,13 +56,13 @@ public class Penguin implements Runnable
   {
     if (age < adultAge)
     {
-      if (brutus)
+      if (amBrüten)
         throw new RuntimeException("Der Kleine ist nicht schwanger, nur dick");
       if (female)
         return GUI.KLEINUININ;
       return GUI.KLEINUIN;
     }
-    if (brutus)
+    if (amBrüten)
       return GUI.SCHWANGUIN;
     if (female)
       return GUI.FRAUIN;
@@ -72,7 +72,8 @@ public class Penguin implements Runnable
   private void warten()
   {
     int duration = minimum + (int) (Math.random() * increase);
-    //log("Sleep: " + duration);
+    if(Colony.logSleep)
+      log("Sleep: " + duration);
     try
     {
       Thread.sleep(duration);
@@ -85,10 +86,12 @@ public class Penguin implements Runnable
   //TODO was heißt "muss entscheidung akzeptieren", auch wenn er schon in der Bewegung ist?
   private synchronized void move()
   {
-    if(brutus)
-      return;
+    //TODO unelegant?
+    if(amBrüten)
+      colony.move(this, x, y, x, y);
 
     int xNew, yNew;
+    //Auswahl der Richtung
     switch ((int) (Math.random() * 4))
     {
       case 0:
@@ -115,48 +118,49 @@ public class Penguin implements Runnable
       if(xNew < 0 || yNew < 0
           || xNew > colony.getWidth2()-1
           || yNew > colony.getHeight2()-1)
-      {
         remove();
-        return;
+      else
+      {
+        if(Colony.logMove)
+          log("Move", xNew, yNew);
+        colony.move(this, x, y, xNew, yNew);
       }
-      colony.move(this, x, y, xNew, yNew);
     }
   }
 
-  public boolean canMove(int xNew, int yNew)
+  private boolean canMove(int xNew, int yNew)
   {
     try
     {
       //Auch wenn ein anderer Pinguin da steht
       if(colony.checkPeng(xNew, yNew))
-      {
-        log("Penguin bei " + xNew + "|" + yNew);
         return false;
-      }
-      if (!colony.getSquareLocks()[xNew][yNew].check())
-        return false;
-      return true;
+      return colony.getSquareLocks()[xNew][yNew].check();
     }
     catch (ArrayIndexOutOfBoundsException e)
     {
+      //Wenn es eine OutOfBounds Exception gibt, versucht der Pinguin die Kolonie
+      // zu verlassen, das geht immer
       return true;
     }
   }
 
-  private void adBrutensis()
+  private void brütuininTry()
   {
-    if(female && colony.isIce(x,y) && Math.random() > 0.95 && !brutus && age >= adultAge)
+    if(female && colony.isIce(x,y) && Math.random() > 0.95 && !amBrüten && age >= adultAge)
     {
       //Falls am linken Rand des Spielfelds Eis ist
       if(x == 0)
         return;
       Penguin mannuin = colony.getPlaced()[x-1][y];
-      if(mannuin != null && !mannuin.female && mannuin.age >= adultAge && !mannuin.brutus)
+      if(mannuin != null && !mannuin.female && mannuin.age >= adultAge && !mannuin.amBrüten)
       {
         if(Math.random() > 0.5)
         {
-          log("Frauin brütet");
-          brutus = true;
+          if(Colony.logBrüten)
+            log("Frauin brütet");
+          amBrüten = true;
+          //TODO unelegante Lösung? Updated Sprite
           colony.move(this,x,y,x,y);
           try
           {
@@ -172,14 +176,16 @@ public class Penguin implements Runnable
           return;
         }
       }
-      log("Leider nix zum brüten da");
+      if(Colony.logBrüten)
+        log("Leider niemand zum brüten da");
     }
   }
 
-  public synchronized void brutussen()
+  private synchronized void mannuinBrüten()
   {
-    log("Mannuin brütet");
-    brutus = true;
+    if(Colony.logBrüten)
+      log("Mannuin brütet");
+    amBrüten = true;
     colony.move(this,x,y,x,y);
     try
     {
@@ -189,12 +195,12 @@ public class Penguin implements Runnable
     {}
   }
 
-  private void adSchlupfensis()
+  private void amSchlüpfen()
   {
-    if(brutus)
+    if(amBrüten)
     {
       int prevx = x, prevy = y;
-      brutus=false;
+      amBrüten =false;
       move();
       boolean kleinuinuinuinuinuinininin;
       if(Math.random() > 0.5)
@@ -211,9 +217,10 @@ public class Penguin implements Runnable
     age++;
   }
 
-  public void remove()
+  private void remove()
   {
-    log(" ist auf zu neuen Kolonien!");
+    if(Colony.logRemove)
+      log(" ist auf zu neuen Kolonien!");
     colony.remove(x,y);
     stop = true;
   }
@@ -255,8 +262,9 @@ public class Penguin implements Runnable
     this.y = y;
   }
 
-  public synchronized void setWurdeGezwungen()
+  private synchronized void setWurdeGezwungen()
   {
+    //Der arme :(
     wurdeGezwungen = true;
   }
 }

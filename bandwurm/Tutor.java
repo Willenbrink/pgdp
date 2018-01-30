@@ -18,15 +18,16 @@ public class Tutor extends Thread
   public void run()
   {
     //TODO breakcondition braucht man gar nicht oder?
-    while (true)
+    Buffer bufferFrom = Klausurkorrektur.getBuffer(pos);
+    while (bufferFrom.getTraffic() < Klausurkorrektur.getAmountStudents()
+        || bufferFrom.getAmount() > 0)
     {
-      Buffer bufferFrom = Klausurkorrektur.getBuffer(pos);
 
       Klausur klausur = bufferFrom.getKlausur();
       if (!zählen)
       {
-        correct(klausur);
         Buffer bufferTo = Klausurkorrektur.getBuffer(pos + 1);
+        correct(klausur);
         bufferTo.addKlausur(klausur);
       }
       else

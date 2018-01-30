@@ -4,8 +4,7 @@ public class Klausurkorrektur
 {
   public static long start = System.currentTimeMillis();
   private static Buffer[] buffers;
-  //TODO 1700
-  private final static int amountStudents = 100;
+  private final static int amountStudents = 17;
 
   public Klausurkorrektur() throws Exception
   {
@@ -22,7 +21,8 @@ public class Klausurkorrektur
       buffers[0].addKlausur(new Klausur());
 
     //Start der Korrekturmaschine
-    //TODO Verteilung eventuell noch ein wenig anpassen
+    // Die letzten 5 Tutoren zählen die Punkte
+    // der Rest korrigiert die Aufgaben
     for (int i = 0; i < 60; i++)
     {
       if(i > 55)
@@ -33,20 +33,23 @@ public class Klausurkorrektur
     new Uebungsleitung().start();
     new Uebungsleitung().start();
 
-    while(buffers[9].getTraffic() != amountStudents)
+    while(buffers[buffers.length-1].getTraffic() != amountStudents)
       Thread.sleep(1000);
-    //Ich Schelm habe das Grinsegesicht umgedreht,
-    // ich krieg dafür aber keinen Punktabzug oder?
-    System.out.println("Korrektur der Info 1 Klausur beendet (:");
+    System.out.println("Korrektur der Info 1 Klausur beendet :)");
     //Eigentlich soll ja nur der Main-Thread beenden aber das macht irgendwie keinen Sinn
     //Deswegen einfach System.exit(0);
-    //Thread.yield();
-    System.exit(0);
+    Thread.yield();
+    //System.exit(0);
   }
 
   public static Buffer getBuffer(int pos)
   {
     return buffers[pos];
+  }
+
+  public static int getAmountStudents()
+  {
+    return amountStudents;
   }
 
   public static void main(String[] args) throws Exception

@@ -143,3 +143,4 @@ public class Colony extends GUI
     return placed;
   }
 }
+//UTF-8 ä

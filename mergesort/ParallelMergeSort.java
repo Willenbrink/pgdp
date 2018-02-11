@@ -54,3 +54,4 @@ public class ParallelMergeSort implements Runnable
     return thread;
   }
 }
+//UTF-8 ä

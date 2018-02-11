@@ -403,3 +403,4 @@ public class GUI extends JPanel
     }
   }
 }
+//UTF-8 ä

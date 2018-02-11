@@ -46,3 +46,4 @@ public class NormalMergeSort {
     merge(arr, low, mid, high);
   }
 }
+//UTF-8 ä

@@ -23,3 +23,4 @@ public class Monitor
     isLocked = false;
   }
 }
+//UTF-8 ä

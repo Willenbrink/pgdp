@@ -265,3 +265,4 @@ public class Penguin implements Runnable
     wurdeGezwungen = true;
   }
 }
+//UTF-8 ä

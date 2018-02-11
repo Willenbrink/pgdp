@@ -74,3 +74,4 @@ public class Tutor extends Thread
     System.out.println(s);
   }
 }
+//UTF-8 ä

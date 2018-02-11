@@ -132,3 +132,4 @@ public class Klausur
     return nachnamen[rand.nextInt(10)];
   }
 }
+//UTF-8 ä

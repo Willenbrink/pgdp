@@ -57,3 +57,4 @@ public class Buffer
     }
   }
 }
+//UTF-8 ä

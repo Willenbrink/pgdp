@@ -42,3 +42,4 @@ public class Semaphore
     return cap-free;
   }
 }
+//UTF-8 ä

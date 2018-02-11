@@ -67,3 +67,4 @@ public class Korrekturschema {
     return 5.0f;
   }
 }
+//UTF-8 ä

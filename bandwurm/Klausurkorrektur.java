@@ -53,3 +53,4 @@ public class Klausurkorrektur
     new Klausurkorrektur();
   }
 }
+//UTF-8 ä

@@ -117,3 +117,4 @@ public class MergeSortTest {
     System.out.println("Is sorted: " + equals(origianl));
   }
 }
+//UTF-8 ä

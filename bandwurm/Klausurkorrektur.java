@@ -36,7 +36,6 @@ public class Klausurkorrektur
     while(buffers[buffers.length-1].getTraffic() != amountStudents)
       Thread.sleep(1000);
     System.out.println("Korrektur der Info 1 Klausur beendet :)");
-    System.exit(0);
   }
 
   public static Buffer getBuffer(int pos)

@@ -7,7 +7,6 @@ public class Buffer
 {
   private Queue<Klausur> klausuren;
   private final Semaphore sema;
-  private int traffic;
 
 
   public Buffer (int amount)
@@ -27,7 +26,7 @@ public class Buffer
       } catch (InterruptedException e)
       {
         e.printStackTrace();
-        return getKlausur();
+        return null;
       }
     }
   }
@@ -39,7 +38,7 @@ public class Buffer
 
   public int getTraffic()
   {
-    return traffic;
+    return sema.getTraffic();
   }
 
   public void addKlausur(Klausur klausur)
@@ -50,7 +49,6 @@ public class Buffer
       {
         sema.add();
         this.klausuren.add(klausur);
-        traffic++;
       } catch (InterruptedException e)
       {
         e.printStackTrace();

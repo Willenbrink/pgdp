@@ -3,6 +3,7 @@ package bandwurm;
 public class Semaphore
 {
   private int free, cap;
+  private int traffic;
 
   public Semaphore(int cap)
   {
@@ -13,7 +14,11 @@ public class Semaphore
   public synchronized void get() throws InterruptedException
   {
     while(free == cap)
+    {
+      if(traffic == Klausurkorrektur.getAmountStudents() && free-cap == 0)
+        return;
       wait();
+    }
     free++;
     notifyAll();
   }
@@ -23,7 +28,13 @@ public class Semaphore
     while(free == 0)
       wait();
     free--;
+    traffic++;
     notifyAll();
+  }
+
+  public int getTraffic()
+  {
+    return traffic;
   }
 
   public int getAmount()

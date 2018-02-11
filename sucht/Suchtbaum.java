@@ -330,18 +330,16 @@ public class Suchtbaum<T extends Comparable<T>>
   }
 
   /*
-  Der Test wurde in das selbe Program geschrieben, da es auf Piazza nicht eindeutig ist
+  Der Test wurde in das selbe Program geschrieben, da es auf Piazza nicht eindeutig war
   ob das ganze als Unittest oder als Main geschrieben werden soll,
-  Alternativ kann man natürlich alles in einen Unittest schreiben der TestThreaded ausführt,
-  dafür muss zusätzlich alles unterhalb dieses Kommentars in den Unittest geschrieben werden
+  Alternativ kann man natürlich alles in einen Unittest schreiben der die main testet,
+  dafür muss alles unterhalb dieses Kommentars in den Unittest geschrieben werden
    */
 
-
-
   //Variable für das Testen
-  private int count;
+  private static int count;
 
-  private class Runner implements Runnable
+  private static class Runner implements Runnable
   {
     Suchtbaum baumi;
     int delay;
@@ -397,14 +395,16 @@ public class Suchtbaum<T extends Comparable<T>>
     }
   }
 
-  private void log(String input, long start)
+  private static void log(String input, long start)
   {
     System.out.print("Time " + (System.currentTimeMillis() - start) + ": ");
     System.out.println(input);
   }
 
-  public void testThreaded() throws InterruptedException
+  public static void main(String[] args) throws InterruptedException
   {
+    System.out.println("Hier werden jetzt viele Exceptions geworfen, da Objekte entfernt werden"
+        + " die gar nicht in dem Baum enthalten sind");
     long startTime = System.currentTimeMillis();
     //Amount of threads
     int n = 100;
@@ -425,15 +425,5 @@ public class Suchtbaum<T extends Comparable<T>>
     }
     System.out.println("Test beendet");
     System.exit(0);
-  }
-
-  //TODO das ist noch nicht wirklich schön, warum kann ich testThreaded nicht einfach static
-  // machen?
-  public static void main(String[] args) throws InterruptedException
-  {
-    System.out.println("Hier werden jetzt viele Exceptions geworfen, da Objekte entfernt werden"
-        + " die gar nicht in dem Baum enthalten sind");
-    Suchtbaum hauptprogramm = new Suchtbaum();
-    hauptprogramm.testThreaded();
   }
 }

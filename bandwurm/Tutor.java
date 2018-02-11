@@ -23,6 +23,8 @@ public class Tutor extends Thread
     {
 
       Klausur klausur = bufferFrom.getKlausur();
+      if(klausur == null)
+        return;
       if (!zählen)
       {
         Buffer bufferTo = Klausurkorrektur.getBuffer(pos + 1);

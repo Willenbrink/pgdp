@@ -427,3 +427,4 @@ public class Suchtbaum<T extends Comparable<T>>
     System.exit(0);
   }
 }
+//UTF-8 ä

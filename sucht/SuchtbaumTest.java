@@ -237,3 +237,4 @@ public class SuchtbaumTest
     assertEquals(sizeCount, n - count);
   }
 }
+//UTF-8 ä

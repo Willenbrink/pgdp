@@ -17,8 +17,7 @@ public class Penguin implements Runnable
   private Colony colony;
   private boolean amBrüten;
   private boolean wurdeGezwungen;
-  //TODO private
-  public boolean stop;
+  private boolean stop;
 
   public Penguin(boolean female, int x, int y, int age, Colony col)
   {
@@ -79,7 +78,6 @@ public class Penguin implements Runnable
     }
   }
 
-  //TODO was heißt "muss entscheidung akzeptieren", auch wenn er schon in der Bewegung ist?
   private synchronized void move()
   {
     int xNew, yNew;
@@ -116,8 +114,9 @@ public class Penguin implements Runnable
         if(Colony.logMove)
           log("Move", xNew, yNew);
         colony.move(this, x, y, xNew, yNew);
+        colony.getSquareLocks()[x][y].reset();
+        colony.getSquareLocks()[xNew][yNew].check();
         //Nur wenn er moved, soll er auch altern
-        //TODO Brütuine werden immer noch überrannt! Das muss unbedingt gefixt werden
         aging();
       }
     }
@@ -128,8 +127,8 @@ public class Penguin implements Runnable
     try
     {
       //Auch wenn ein anderer Pinguin da steht
-      if(colony.checkPeng(xNew, yNew))
-        return false;
+      //if(colony.checkPeng(xNew, yNew))
+        //return false;
       return colony.getSquareLocks()[xNew][yNew].check();
     }
     catch (ArrayIndexOutOfBoundsException e)
@@ -142,8 +141,7 @@ public class Penguin implements Runnable
 
   private void brütuininTry()
   {
-    //TODO change chance
-    if(female && colony.isIce(x,y) && Math.random() > 0 && !amBrüten && age >= adultAge)
+    if(female && colony.isIce(x,y) && Math.random() > 0.95 && !amBrüten && age >= adultAge)
     {
       //Falls am linken Rand des Spielfelds Eis ist
       if(x == 0)
@@ -157,6 +155,7 @@ public class Penguin implements Runnable
             log("Frauin brütet");
           amBrüten = true;
           colony.move(this,x,y,x,y);
+          colony.getSquareLocks()[x][y].check();
           try
           {
             Thread.sleep(9000);
@@ -182,6 +181,7 @@ public class Penguin implements Runnable
       log("Mannuin brütet");
     amBrüten = true;
     colony.move(this,x,y,x,y);
+    colony.getSquareLocks()[x][y].check();
     try
     {
       Thread.sleep(9000);
@@ -206,8 +206,6 @@ public class Penguin implements Runnable
       new Thread(colony.getPlaced()[prevx][prevy]).start();
       if(Colony.logSchlüpfen)
         System.out.println("Frolocket, uns ist ein Pinguin geboren worden!");
-      //TODO entfernen
-      colony.kids = true;
     }
   }
 

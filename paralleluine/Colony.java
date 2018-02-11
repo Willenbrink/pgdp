@@ -9,8 +9,7 @@ public class Colony extends GUI
   public static final boolean logRemove =     true;
   public static final boolean logMonitors =   false;
 
-  //TODO entfernen
-  public boolean kids;
+  private boolean updated;
 
   public static long startTime;
   private int width, height;
@@ -64,10 +63,7 @@ public class Colony extends GUI
     reset(x, y);
     peng.setPos(xNew, yNew);
     setForeground(landscape, xNew, yNew, peng.getFg());
-
-    //TODO aha, das darf also nicht hier stehen :O
-    //Draw muss jedes Mal aufgerufen werden wenn diese Methode aufgerufen wird,
-    // da die Position sich jedes Mal zwangsläufig ändern muss
+    updated = false;
     draw();
   }
 
@@ -80,11 +76,14 @@ public class Colony extends GUI
 
   private void draw()
   {
+    if(updated)
+      return;
     synchronized (drawLock)
     {
       if(logMonitors)
         System.out.print(logMonitors());
       draw(landscape);
+      updated = true;
     }
   }
 
@@ -92,6 +91,8 @@ public class Colony extends GUI
   {
     placed[x][y] = null;
     reset(x, y);
+    updated = false;
+    draw();
   }
 
   public boolean checkPeng(int x, int y)
@@ -140,15 +141,5 @@ public class Colony extends GUI
   public Penguin[][] getPlaced()
   {
     return placed;
-  }
-
-  //TODO entfernen
-  public void stopSimulation()
-  {
-    for(Penguin[] array : placed)
-      for(Penguin peng : array)
-        if(peng != null)
-          peng.stop = true;
-    Thread.yield();
   }
 }

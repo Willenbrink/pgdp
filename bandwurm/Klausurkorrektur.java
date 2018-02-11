@@ -4,7 +4,7 @@ public class Klausurkorrektur
 {
   public static long start = System.currentTimeMillis();
   private static Buffer[] buffers;
-  private final static int amountStudents = 17;
+  private final static int amountStudents = 1700;
 
   public Klausurkorrektur() throws Exception
   {
@@ -36,10 +36,7 @@ public class Klausurkorrektur
     while(buffers[buffers.length-1].getTraffic() != amountStudents)
       Thread.sleep(1000);
     System.out.println("Korrektur der Info 1 Klausur beendet :)");
-    //Eigentlich soll ja nur der Main-Thread beenden aber das macht irgendwie keinen Sinn
-    //Deswegen einfach System.exit(0);
-    Thread.yield();
-    //System.exit(0);
+    System.exit(0);
   }
 
   public static Buffer getBuffer(int pos)

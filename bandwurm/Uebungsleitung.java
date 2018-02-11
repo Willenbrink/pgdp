@@ -12,13 +12,11 @@ public class Uebungsleitung extends Tutor
   @Override
   protected void correct(Klausur klausur)
   {
-    //correct ist hier leider nicht korrekt sondern eher willkürlich
-    // Das spiegelt aber unter Umständen die realen Begebenheiten gut wieder
-    double chance = Math.random();
-    if (chance < 0.9)
-      return;
     for (int i = 0; i < klausur.getPunkte().length; i++)
     {
+      double chance = Math.random();
+      if (chance < 0.9)
+        continue;
       int punkte = klausur.getPunkte()[i];
       chance = Math.random();
       boolean lower, rise;
@@ -29,7 +27,7 @@ public class Uebungsleitung extends Tutor
       {
         //Sollte normalerweise nicht eintreten,
         // da es keine Aufgabe mit max 0 Punkten gibt
-        return;
+        throw new RuntimeException("Aufgabe mit 0 Punkten");
       }
       if (lower && !rise)
       {

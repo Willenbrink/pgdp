@@ -5,8 +5,9 @@ import java.util.Queue;
 
 public class Buffer
 {
-  Queue<Klausur> klausuren;
-  Semaphore sema;
+  private Queue<Klausur> klausuren;
+  private final Semaphore sema;
+  private int traffic;
 
 
   public Buffer (int amount)
@@ -38,7 +39,7 @@ public class Buffer
 
   public int getTraffic()
   {
-    return sema.getTraffic();
+    return traffic;
   }
 
   public void addKlausur(Klausur klausur)
@@ -49,6 +50,7 @@ public class Buffer
       {
         sema.add();
         this.klausuren.add(klausur);
+        traffic++;
       } catch (InterruptedException e)
       {
         e.printStackTrace();

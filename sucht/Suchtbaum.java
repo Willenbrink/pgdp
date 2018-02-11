@@ -2,9 +2,6 @@ package sucht;
 
 public class Suchtbaum<T extends Comparable<T>>
 {
-  //TODO implement "Hauptprogramm"
-  //TODO check whether this lock is allowed
-
   private class SuchtbaumElement
   {
     //SetElement nicht möglich, da der Baum dann nicht mehr sortiert wäre
@@ -90,7 +87,7 @@ public class Suchtbaum<T extends Comparable<T>>
   /*
   Wrappermethoden um die Synchronisierung von der eigentlich Implementation
   zu trennen, wegen der Vorgabe wurden die Wrappermethoden nicht umbenannt,
-  die gewrapped Methoden aber schon
+  die gewrappten Methoden aber schon
 
   Synchronisationsblock
    */
@@ -155,8 +152,9 @@ public class Suchtbaum<T extends Comparable<T>>
     // 1. Breakpoint bei throwException = ...; setzen
     // 1.1 Der Breakpoint kann tatsächlich irgendwo innerhalb der nächsten 3 Zeilen
     //     gesetzt werden und es hängt sich trotzdem auf
-    // 2. F7 um einen Schritt zu machen
-    // 3. Terminiert nicht, beenden der VM funktioniert nicht auf Anhieb
+    // 2. Debugmodus starten
+    // 3. F7 um einen Schritt zu machen
+    // 4. Terminiert nicht, beenden der VM funktioniert nicht auf Anhieb
     //    der Prozess muss gekillt werden
     boolean throwException = containsWrapped(element);
     if (throwException)
@@ -168,8 +166,8 @@ public class Suchtbaum<T extends Comparable<T>>
     // wir auf einen Knoten treffen der keinen Nachfolger hat, an diesen wird
     // dann das Element angehängt
     // falls root == null wurde es bereits vorher abgefangen
-    //Seltsamerweise, wenn man einen Breakpoint mit Bedingung root==null setzt
-    // wird der Code um ca. 1000x langsamer
+    //Seltsamerweise, wenn man einen Breakpoint mit Bedingung root==null bei while(true) setzt
+    // wird der Code ca. 50x langsamer (9 Sekunden vs 260 ms)
     SuchtbaumElement walk = root;
     while (true)
     {
@@ -329,5 +327,113 @@ public class Suchtbaum<T extends Comparable<T>>
       parent.setLeft(element);
     else
       parent.setRight(element);
+  }
+
+  /*
+  Der Test wurde in das selbe Program geschrieben, da es auf Piazza nicht eindeutig ist
+  ob das ganze als Unittest oder als Main geschrieben werden soll,
+  Alternativ kann man natürlich alles in einen Unittest schreiben der TestThreaded ausführt,
+  dafür muss zusätzlich alles unterhalb dieses Kommentars in den Unittest geschrieben werden
+   */
+
+
+
+  //Variable für das Testen
+  private int count;
+
+  private class Runner implements Runnable
+  {
+    Suchtbaum baumi;
+    int delay;
+    long start;
+
+    private Runner(Suchtbaum suchti, int ms, long startTime)
+    {
+      baumi = suchti;
+      delay = ms;
+      start = startTime;
+    }
+
+    @Override
+    public void run()
+    {
+      while (true)
+      {
+        try
+        {
+          int rand;
+          count++;
+          int state = (int) (Math.random() * 100);
+          if (state <= 20)
+          {
+            String result = baumi.toString();
+            log("read", start);
+          }
+          else if (state <= 60)
+          {
+            rand = (int) (Math.random() * 1000);
+            baumi.contains(rand);
+            log("read", start);
+          }
+          else if (state <= 80)
+          {
+            rand = (int) (Math.random() * 1000);
+            baumi.insert(rand);
+            log("write ->", start);
+          }
+          else if (state <= 100)
+          {
+            rand = (int) (Math.random() * 1000);
+            baumi.remove(rand);
+            log("write <-", start);
+          }
+          Thread.sleep(delay);
+        }
+        catch (InterruptedException e)
+        {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private void log(String input, long start)
+  {
+    System.out.print("Time " + (System.currentTimeMillis() - start) + ": ");
+    System.out.println(input);
+  }
+
+  public void testThreaded() throws InterruptedException
+  {
+    long startTime = System.currentTimeMillis();
+    //Amount of threads
+    int n = 100;
+    int sleepDuration = 1000;
+    Suchtbaum<Integer> suchti = new Suchtbaum<>();
+
+    for (int i = 0; i < n; i++)
+    {
+      int delay = (int) (Math.random() * sleepDuration);
+      Runner runner = new Runner(suchti, delay, startTime);
+      new Thread(runner).start();
+    }
+    while (System.currentTimeMillis()-startTime < 10000)
+    {
+      System.out.println(count + " active in the last " + sleepDuration + "ms");
+      count = 0;
+      Thread.sleep(sleepDuration);
+    }
+    System.out.println("Test beendet");
+    System.exit(0);
+  }
+
+  //TODO das ist noch nicht wirklich schön, warum kann ich testThreaded nicht einfach static
+  // machen?
+  public static void main(String[] args) throws InterruptedException
+  {
+    System.out.println("Hier werden jetzt viele Exceptions geworfen, da Objekte entfernt werden"
+        + " die gar nicht in dem Baum enthalten sind");
+    Suchtbaum hauptprogramm = new Suchtbaum();
+    hauptprogramm.testThreaded();
   }
 }

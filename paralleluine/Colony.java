@@ -2,14 +2,15 @@ package paralleluine;
 
 public class Colony extends GUI
 {
-  public static final boolean logSleep =      true;
+  public static final boolean logSleep =      false;
   public static final boolean logMove =       true;
   public static final boolean logBrüten =     true;
   public static final boolean logSchlüpfen =  true;
-  public static final boolean logAltern =     true;
   public static final boolean logRemove =     true;
-  public static final boolean logMonitors =   true;
+  public static final boolean logMonitors =   false;
 
+  //TODO entfernen
+  public boolean kids;
 
   public static long startTime;
   private int width, height;
@@ -64,6 +65,7 @@ public class Colony extends GUI
     peng.setPos(xNew, yNew);
     setForeground(landscape, xNew, yNew, peng.getFg());
 
+    //TODO aha, das darf also nicht hier stehen :O
     //Draw muss jedes Mal aufgerufen werden wenn diese Methode aufgerufen wird,
     // da die Position sich jedes Mal zwangsläufig ändern muss
     draw();
@@ -138,5 +140,15 @@ public class Colony extends GUI
   public Penguin[][] getPlaced()
   {
     return placed;
+  }
+
+  //TODO entfernen
+  public void stopSimulation()
+  {
+    for(Penguin[] array : placed)
+      for(Penguin peng : array)
+        if(peng != null)
+          peng.stop = true;
+    Thread.yield();
   }
 }

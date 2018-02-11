@@ -17,7 +17,8 @@ public class Penguin implements Runnable
   private Colony colony;
   private boolean amBrüten;
   private boolean wurdeGezwungen;
-  private boolean stop;
+  //TODO private
+  public boolean stop;
 
   public Penguin(boolean female, int x, int y, int age, Colony col)
   {
@@ -35,20 +36,15 @@ public class Penguin implements Runnable
   {
     while (!stop)
     {
-      //TODO eventuell kann das Lock verloren gehen zwischen den Loops
-      //synchronized (colony.squareLocks[x][y])
+      if(wurdeGezwungen)
       {
-        if(wurdeGezwungen)
-        {
-          mannuinBrüten();
-          wurdeGezwungen = false;
-        }
-        brütuininTry();
-        move();
-        amSchlüpfen();
-        aging();
-        warten();
+        mannuinBrüten();
+        wurdeGezwungen = false;
       }
+      brütuininTry();
+      move();
+      amSchlüpfen();
+      warten();
     }
   }
 
@@ -86,10 +82,6 @@ public class Penguin implements Runnable
   //TODO was heißt "muss entscheidung akzeptieren", auch wenn er schon in der Bewegung ist?
   private synchronized void move()
   {
-    //TODO unelegant?
-    if(amBrüten)
-      colony.move(this, x, y, x, y);
-
     int xNew, yNew;
     //Auswahl der Richtung
     switch ((int) (Math.random() * 4))
@@ -124,6 +116,9 @@ public class Penguin implements Runnable
         if(Colony.logMove)
           log("Move", xNew, yNew);
         colony.move(this, x, y, xNew, yNew);
+        //Nur wenn er moved, soll er auch altern
+        //TODO Brütuine werden immer noch überrannt! Das muss unbedingt gefixt werden
+        aging();
       }
     }
   }
@@ -147,7 +142,8 @@ public class Penguin implements Runnable
 
   private void brütuininTry()
   {
-    if(female && colony.isIce(x,y) && Math.random() > 0.95 && !amBrüten && age >= adultAge)
+    //TODO change chance
+    if(female && colony.isIce(x,y) && Math.random() > 0 && !amBrüten && age >= adultAge)
     {
       //Falls am linken Rand des Spielfelds Eis ist
       if(x == 0)
@@ -160,7 +156,6 @@ public class Penguin implements Runnable
           if(Colony.logBrüten)
             log("Frauin brütet");
           amBrüten = true;
-          //TODO unelegante Lösung? Updated Sprite
           colony.move(this,x,y,x,y);
           try
           {
@@ -209,6 +204,10 @@ public class Penguin implements Runnable
         kleinuinuinuinuinuinininin = false;
       colony.getPlaced()[prevx][prevy] = new Penguin(kleinuinuinuinuinuinininin, prevx, prevy, 0, colony);
       new Thread(colony.getPlaced()[prevx][prevy]).start();
+      if(Colony.logSchlüpfen)
+        System.out.println("Frolocket, uns ist ein Pinguin geboren worden!");
+      //TODO entfernen
+      colony.kids = true;
     }
   }
 

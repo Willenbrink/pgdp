@@ -3,7 +3,6 @@ package bandwurm;
 public class Semaphore
 {
   private int free, cap;
-  private int traffic;
 
   public Semaphore(int cap)
   {
@@ -24,17 +23,11 @@ public class Semaphore
     while(free == 0)
       wait();
     free--;
-    traffic++;
     notifyAll();
   }
 
   public int getAmount()
   {
     return cap-free;
-  }
-
-  public int getTraffic()
-  {
-    return traffic;
   }
 }

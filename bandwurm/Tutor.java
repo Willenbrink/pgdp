@@ -17,7 +17,6 @@ public class Tutor extends Thread
   @Override
   public void run()
   {
-    //TODO breakcondition braucht man gar nicht oder?
     Buffer bufferFrom = Klausurkorrektur.getBuffer(pos);
     while (bufferFrom.getTraffic() < Klausurkorrektur.getAmountStudents()
         || bufferFrom.getAmount() > 0)

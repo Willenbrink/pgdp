@@ -23,30 +23,25 @@ public class ParallelMergeSort implements Runnable
   @Override
   public void run()
   {
-    //if (arr.length > 1)
+    int mid = (low + high) / 2;
+    Thread thread = createThread(arr, low, mid);
+    if (thread != null)
     {
-      int mid = (low + high) / 2;
-      Thread thread = createThread(arr, low, mid);
-      if (thread != null)
+      int prevLow = low;
+      low = mid + 1;
+      run();
+      try
       {
-        int prevLow = low;
-        low = mid+1;
-        run();
-        try
-        {
-          thread.join();
-          currentThreads--;
-        } catch (InterruptedException e)
-        {
-          e.printStackTrace();
-        }
-        NormalMergeSort.mergePublic(arr, prevLow, mid, high);
-      }
-      else
+        thread.join();
+        currentThreads--;
+      } catch (InterruptedException e)
       {
-        NormalMergeSort.mergeSort(arr, low, high);
+        e.printStackTrace();
       }
+      NormalMergeSort.mergePublic(arr, prevLow, mid, high);
     }
+    else
+      NormalMergeSort.mergeSort(arr, low, high);
   }
 
   private static synchronized Thread createThread(int[] array, int low, int high)
